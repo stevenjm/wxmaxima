@@ -30,7 +30,7 @@ SubSupCell::SubSupCell() : MathCell()
   m_baseCell = NULL;
   m_indexCell = NULL;
   m_exptCell = NULL;
-  m_presupCell = NULL;
+  m_presubCell = NULL;
   m_presupCell = NULL;
 
 }
@@ -59,6 +59,7 @@ void SubSupCell::SetParent(MathCell *parent)
     m_indexCell->SetParentList(parent);
   if (m_exptCell != NULL)
     m_exptCell->SetParentList(parent);
+
   if (m_presupCell != NULL)
     m_presupCell->SetParentList(parent);
   if (m_presubCell != NULL)
