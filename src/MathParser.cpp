@@ -318,6 +318,19 @@ MathCell* MathParser::ParseSubSupTag(wxXmlNode* node)
         subsup->SetExponent(power);
         subsup->SetType(m_ParserStyle);
         subsup->SetStyle(TS_VARIABLE);
+
+        child = child->GetNext();
+        if (child)
+        {
+          MathCell* presub = ParseTag(child, false);
+          subsup->SetPreSub(presub);
+          child = child->GetNext();
+          if (child)
+          {
+            MathCell* presup = ParseTag(child, false);
+            subsup->SetPreSup(presub);
+          }
+        }
         return subsup;
       }
     }

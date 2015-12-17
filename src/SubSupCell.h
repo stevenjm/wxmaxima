@@ -34,6 +34,8 @@ public:
   void SetBase(MathCell *base);
   void SetIndex(MathCell *index);
   void SetExponent(MathCell *expt);
+  void SetPreSub(MathCell *presub);
+  void SetPreSup(MathCell *presup);
   void RecalculateSize(CellParser& parser, int fontsize);
   void RecalculateWidths(CellParser& parser, int fontsize);
   void Draw(CellParser& parser, wxPoint point, int fontsize);
@@ -43,9 +45,16 @@ public:
   void SelectInner(wxRect& rect, MathCell** first, MathCell** last);
   void SetParent(MathCell *parent);
 protected:
+  //! The name that is to be equipped with super-and subscripts
   MathCell *m_baseCell;
+  //! The superscript
   MathCell *m_exptCell;
+  //! The subscript
   MathCell *m_indexCell;
+  //! A superscript displayed in front of the cell
+  MathCell *m_presupCell;
+  //! A subscript displayed in front of the cell
+  MathCell *m_presubCell;
 };
 
 #endif // SUBSUPCELL_H

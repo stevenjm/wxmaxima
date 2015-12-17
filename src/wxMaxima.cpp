@@ -1011,6 +1011,14 @@ void wxMaxima::ReadMiscText(wxString &data)
          SetBatchMode(false);
          // Inform the user that the evaluation queue is empty.
          EvaluationQueueLength(0);
+
+         // Make sure that the cell containing the error message is visible
+         if (m_console->GetHCaret()->RevealHidden())
+         {
+           m_console->FoldOccurred();
+           m_console->Recalculate(true);
+         }
+
        }
      }
      else
@@ -1560,6 +1568,13 @@ void wxMaxima::ReadLispError(wxString &data)
       SetBatchMode(false);
       // Inform the user that the evaluation queue is empty.
       EvaluationQueueLength(0);
+
+      // Make sure that the cell containing the error message is visible
+      if (m_console->GetHCaret()->RevealHidden())
+      {
+        m_console->FoldOccurred();
+        m_console->Recalculate(true);
+      }
     }
   }
 }
@@ -2391,6 +2406,12 @@ void wxMaxima::ReadStdErr()
       m_console->m_evaluationQueue->Clear();
       // Inform the user that the evaluation queue is empty.
       EvaluationQueueLength(0);
+      // Make sure that the cell containing the error message is visible
+      if (m_console->GetHCaret()->RevealHidden())
+      {
+        m_console->FoldOccurred();
+        m_console->Recalculate(true);
+      }
     }
     else
       TryEvaluateNextInQueue();
@@ -5138,6 +5159,12 @@ void wxMaxima::TryEvaluateNextInQueue()
       {
         m_console->m_evaluationQueue->Clear();
         StatusMaximaBusy(waiting);
+        // Make sure that the cell containing the error message is visible
+        if (m_console->GetHCaret()->RevealHidden())
+        {
+          m_console->FoldOccurred();
+          m_console->Recalculate(true);
+        }
       }
       else
       {

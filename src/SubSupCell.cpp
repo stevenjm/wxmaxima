@@ -30,6 +30,9 @@ SubSupCell::SubSupCell() : MathCell()
   m_baseCell = NULL;
   m_indexCell = NULL;
   m_exptCell = NULL;
+  m_presupCell = NULL;
+  m_presupCell = NULL;
+
 }
 SubSupCell::~SubSupCell()
 {
@@ -41,6 +44,10 @@ SubSupCell::~SubSupCell()
     delete m_exptCell;
   if (m_next != NULL)
     delete m_next;
+  if (m_presupCell != NULL)
+    delete m_presupCell;
+  if (m_presubCell != NULL)
+    delete m_presubCell;
 }
 
 void SubSupCell::SetParent(MathCell *parent)
@@ -52,6 +59,10 @@ void SubSupCell::SetParent(MathCell *parent)
     m_indexCell->SetParentList(parent);
   if (m_exptCell != NULL)
     m_exptCell->SetParentList(parent);
+  if (m_presupCell != NULL)
+    m_presupCell->SetParentList(parent);
+  if (m_presubCell != NULL)
+    m_presubCell->SetParentList(parent);
 }
 
 MathCell* SubSupCell::Copy()
@@ -61,6 +72,10 @@ MathCell* SubSupCell::Copy()
   tmp->SetBase(m_baseCell->CopyList());
   tmp->SetIndex(m_indexCell->CopyList());
   tmp->SetExponent(m_exptCell->CopyList());
+  if(m_presubCell != NULL)
+    tmp->SetPreSub(m_presubCell->CopyList());
+  if(m_presupCell != NULL)
+    tmp->SetPreSup(m_presupCell->CopyList());
 
   return tmp;
 }
@@ -73,9 +88,15 @@ void SubSupCell::Destroy()
     delete m_indexCell;
   if (m_exptCell != NULL)
     delete m_exptCell;
+  if (m_presupCell != NULL)
+    delete m_presupCell;
+  if (m_presubCell != NULL)
+    delete m_presubCell;
   m_baseCell = NULL;
   m_indexCell = NULL;
   m_exptCell = NULL;
+  m_presupCell = NULL;
+  m_presubCell = NULL;
   m_next = NULL;
 }
 
@@ -106,15 +127,50 @@ void SubSupCell::SetExponent(MathCell *exp)
   m_exptCell = exp;
 }
 
+void SubSupCell::SetPreSup(MathCell *exp)
+{
+  if (exp == NULL)
+    return ;
+  if (m_presupCell != NULL)
+    delete m_presupCell;
+  m_presupCell = exp;
+}
+
+void SubSupCell::SetPreSub(MathCell *exp)
+{
+  if (exp == NULL)
+    return ;
+  if (m_presubCell != NULL)
+    delete m_presubCell;
+  m_presubCell = exp;
+}
+
 void SubSupCell::RecalculateWidths(CellParser& parser, int fontsize)
 {
   double scale = parser.GetScale();
   m_baseCell->RecalculateWidthsList(parser, fontsize);
   m_indexCell->RecalculateWidthsList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
   m_exptCell->RecalculateWidthsList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+
+  int mpresupcellWidth = 0;    
+  int mpresubcellWidth = 0;
+  if(m_presubCell != NULL)
+  {
+    m_presubCell->RecalculateWidthsList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+    mpresubcellWidth = m_presubCell->GetFullWidth(scale);
+  }
+  
+  if(m_presupCell = NULL)
+  {
+    m_presupCell->RecalculateWidthsList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+    mpresupcellWidth = m_presupCell->GetFullWidth(scale);
+  }
+  
   m_width = m_baseCell->GetFullWidth(scale) +
-            MAX(m_indexCell->GetFullWidth(scale), m_exptCell->GetFullWidth(scale)) -
+            MAX(mpresubcellWidth,mpresupcellWidth) +
+            MAX(m_indexCell ->GetFullWidth(scale), m_exptCell  ->GetFullWidth(scale)) -
             SCALE_PX(2, parser.GetScale());
+  
   ResetData();
 }
 
@@ -122,16 +178,36 @@ void SubSupCell::RecalculateSize(CellParser& parser, int fontsize)
 {
   double scale = parser.GetScale();
 
-  m_baseCell->RecalculateSizeList(parser, fontsize);
-  m_indexCell->RecalculateSizeList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
-  m_exptCell->RecalculateSizeList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+  m_baseCell  ->RecalculateSizeList(parser, fontsize);
+  m_indexCell ->RecalculateSizeList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+  m_exptCell  ->RecalculateSizeList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
 
-  m_height = m_baseCell->GetMaxHeight() + m_indexCell->GetMaxHeight() +
-             m_exptCell->GetMaxHeight() -
-             2*SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, parser.GetScale());
+  int presupcellHeight = 0;
+  int presubcellHeight = 0;
+  int presubcellCenter = 0;
+  if(m_presubCell != NULL)
+  {
+    m_presubCell->RecalculateSizeList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+    presubcellHeight = m_presubCell->GetMaxHeight();
+    presubcellCenter = m_presubCell->GetMaxCenter();
+  }
+  if(m_presupCell != NULL)
+  {
+    m_presupCell->RecalculateSizeList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+    presupcellHeight = m_presupCell->GetMaxHeight();
+  }
 
-  m_center = m_exptCell->GetMaxHeight() + m_baseCell->GetMaxCenter() -
-             SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, scale);
+  
+  m_presupCell->RecalculateSizeList(parser, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+
+  int m_height = m_baseCell->GetMaxHeight() +
+                 MAX(m_indexCell->GetMaxHeight(),presubcellHeight) +
+                 MAX(m_exptCell ->GetMaxHeight(),presubcellHeight) -
+                 2*SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, parser.GetScale());
+
+  int m_center   = MAX(m_exptCell->GetMaxHeight(),presupcellHeight) +
+                   MAX(m_baseCell->GetMaxCenter(),presubcellCenter) -
+                   SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, scale);
 }
 
 void SubSupCell::Draw(CellParser& parser, wxPoint point, int fontsize)
@@ -141,19 +217,50 @@ void SubSupCell::Draw(CellParser& parser, wxPoint point, int fontsize)
     double scale = parser.GetScale();
     wxPoint bs, in;
 
-    bs.x = point.x;
-    bs.y = point.y;
-    m_baseCell->DrawList(parser, bs, fontsize);
+  if ((m_presupCell != NULL) || (m_presubCell != NULL))
+  {
 
-    in.x = point.x + m_baseCell->GetFullWidth(scale) - SCALE_PX(2, scale);
-    in.y = point.y + m_baseCell->GetMaxDrop() +
-           m_indexCell->GetMaxCenter() -
-           SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, scale);
-    m_indexCell->DrawList(parser, in, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+    wxPoint pre;
+    pre = point;
+    
+    int presubcellWidth = 0;
+    int presupcellWidth = 0;
 
-    in.y = point.y - m_baseCell->GetMaxCenter() - m_exptCell->GetMaxHeight()
-           + m_exptCell->GetMaxCenter() +
-           SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, scale);
+    if(m_presubCell != NULL)
+    {
+      pre.y = point.y + m_presubCell->GetMaxDrop() +
+        m_presubCell->GetMaxCenter() -
+        SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, scale);
+      m_presubCell->DrawList(parser, pre, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+      pre.y  = point.y - m_presubCell->GetMaxCenter();
+      presubcellWidth = m_presubCell->GetWidth();
+    }
+    
+    if(m_presupCell != NULL)
+    {
+      pre.y -= m_presupCell->GetMaxHeight() -
+      SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, scale);
+      m_presupCell->DrawList(parser, pre, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+      presupcellWidth = m_presupCell->GetWidth();      
+    }
+    
+    point.x += MAX ( presubcellWidth, presupcellWidth) - SCALE_PX(2, scale);
+
+  }
+  
+  bs = point;
+  
+  m_baseCell->DrawList(parser, bs, fontsize);
+  
+  in.x = point.x + m_baseCell->GetFullWidth(scale) - SCALE_PX(2, scale);
+  in.y = point.y + m_baseCell->GetMaxDrop() +
+    m_indexCell->GetMaxCenter() -
+    SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, scale);
+  m_indexCell->DrawList(parser, in, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
+  
+  in.y = point.y - m_baseCell->GetMaxCenter() - m_exptCell->GetMaxHeight()
+    + m_exptCell->GetMaxCenter() +
+    SCALE_PX((8 * fontsize) / 10 + MC_EXP_INDENT, scale);
     m_exptCell->DrawList(parser, in, MAX(MC_MIN_SIZE, fontsize - SUBSUP_DEC));
   }
   MathCell::Draw(parser, point, fontsize);
@@ -186,26 +293,46 @@ wxString SubSupCell::ToTeX()
 
   wxString s;
 
-  if(TeXExponentsAfterSubscript)
+  if(TeXExponentsAfterSubscript &&((m_presupCell == NULL) && (m_presubCell == NULL)))
     s = wxT("{{{") + m_baseCell->ListToTeX() + wxT("}_{") +
       m_indexCell->ListToTeX() + wxT("}}^{") +
       m_exptCell->ListToTeX() + wxT("}}");
   else
-    s = wxT("{{") + m_baseCell->ListToTeX() + wxT("}_{") +
-      m_indexCell->ListToTeX() + wxT("}^{") +
-      m_exptCell->ListToTeX() + wxT("}}");
-  
+  {
+    if ((m_presupCell != NULL) || (m_presubCell != NULL))
+    {
+      s = wxT("{}");
+      if (m_presubCell != NULL)
+        s+= wxT("_{") + m_presubCell->ListToTeX() + wxT("}_{") +
+                        m_presubCell->ListToTeX() + wxT("}");
+      if (m_presupCell != NULL)
+        s+= wxT("^{") + m_presupCell->ListToTeX() + wxT("}_{") +
+                        m_presubCell->ListToTeX() + wxT("}");
+    }
+  }
   return s;
 }
-
+  
 wxString SubSupCell::ToXML()
 {
+  wxString presubsuptext;
+
+  if ((m_presupCell != NULL) || (m_presubCell != NULL))
+  {
+    if((m_presubCell != NULL))
+      presubsuptext = _T("</r><r>") + m_presubCell->ListToXML()
+                    + _T("</r><r>") + m_presupCell->ListToXML();
+    else
+      presubsuptext = _T("</r><r></r><r>") + m_presupCell->ListToXML();
+  }
+  
   return _T("<ie><r>") + m_baseCell->ListToXML()
     + _T("</r><r>") + m_indexCell->ListToXML()
     + _T("</r><r>") + m_exptCell->ListToXML()
+    + presubsuptext
     + _T("</r></ie>");
 }
-
+    
 void SubSupCell::SelectInner(wxRect& rect, MathCell **first, MathCell **last)
 {
   *first = NULL;
@@ -216,6 +343,10 @@ void SubSupCell::SelectInner(wxRect& rect, MathCell **first, MathCell **last)
     m_baseCell->SelectRect(rect, first, last);
   else if (m_exptCell->ContainsRect(rect))
     m_exptCell->SelectRect(rect, first, last);
+  else if ((m_presubCell != NULL) && (m_presubCell->ContainsRect(rect)))
+    m_presubCell->SelectRect(rect, first, last);
+  else if ((m_presupCell != NULL) && (m_presupCell->ContainsRect(rect)))
+    m_presupCell->SelectRect(rect, first, last);
   if (*first == NULL || *last == NULL)
   {
     *first = this;
