@@ -46,8 +46,18 @@ wxMaximaFrame::wxMaximaFrame(wxWindow *parent, int id, const wxString &title,
   m_commandsLeftInCurrentCell = 0;
   m_forceStatusbarUpdate = false;
   m_manager.SetManagedWindow(this);
+
+  m_workSheetBackground = new wxPanel(this,-1);
+  wxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+
+  // ribbon
+  m_ribbonBar = new RibbonBar(m_workSheetBackground, -1);
+  vbox->Add(m_ribbonBar, wxSizerFlags().Expand().Proportion(0));
+
   // console
-  m_console = new MathCtrl(this, -1, wxDefaultPosition, wxDefaultSize);
+  m_console = new MathCtrl(m_workSheetBackground, -1, wxDefaultPosition, wxDefaultSize);
+  vbox->Add(m_console, wxSizerFlags().Expand().Proportion(10));
+  m_workSheetBackground->SetSizerAndFit(vbox);
 
   // history
   m_history = new History(this, -1);
@@ -221,6 +231,8 @@ wxMaximaFrame::~wxMaximaFrame()
 #else
   wxConfig::Get()->Write(wxT("AUI/toolbar"), (m_console->m_mainToolBar!=NULL));
 #endif
+  wxConfig::Get()->Write(wxT("AUI/ribbonbar"),
+                         m_ribbonBar->IsShown());
   m_manager.UnInit();
 
   // We cannot call delete here as we don't know if there are still timer-
@@ -254,7 +266,7 @@ void wxMaximaFrame::set_properties()
 
 void wxMaximaFrame::do_layout()
 {
-  m_manager.AddPane(m_console,
+  m_manager.AddPane(m_workSheetBackground,
                     wxAuiPaneInfo().Name(wxT("console")).
                             Center().
                             CloseButton(false).
@@ -366,7 +378,7 @@ void wxMaximaFrame::do_layout()
                             PaneBorder(true).
                             Fixed().
                             Left());
-
+  
   wxConfigBase *config = wxConfig::Get();
   bool loadPanes = true;
   wxString perspective;
@@ -393,6 +405,9 @@ void wxMaximaFrame::do_layout()
   bool toolbar = true;
   config->Read(wxT("AUI/toolbar"), &toolbar);
   ShowToolBar(toolbar);
+  bool ribbonbar = false;
+  config->Read(wxT("AUI/ribbonbar"), &ribbonbar);
+  ShowRibbonBar(ribbonbar);
 }
 
 void wxMaximaFrame::SetupMenu()
@@ -504,6 +519,7 @@ void wxMaximaFrame::SetupMenu()
   // panes
   m_Maxima_Panes_Sub = new wxMenu;
   m_Maxima_Panes_Sub->AppendCheckItem(menu_show_toolbar, _("Main Toolbar\tAlt+Shift+B"));
+  m_Maxima_Panes_Sub->AppendCheckItem(menu_show_ribbonbar, _("Ribbon Bar\tAlt+Shift+R"));
   m_Maxima_Panes_Sub->AppendSeparator();
   m_Maxima_Panes_Sub->AppendCheckItem(menu_pane_math, _("General Math\tAlt+Shift+M"));
   m_Maxima_Panes_Sub->AppendCheckItem(menu_pane_stats, _("Statistics\tAlt+Shift+S"));
@@ -1501,6 +1517,22 @@ wxPanel *wxMaximaFrame::CreateFormatPane()
   grid->SetSizeHints(panel);
 
   return panel;
+}
+
+void wxMaximaFrame::ShowRibbonBar(bool show)
+{
+  if(m_ribbonBar)
+  {
+    if((show)&&(!m_ribbonBar->IsShown()))
+      m_ribbonBar->Show();
+    else
+    {
+      if((!show)&&(m_ribbonBar->IsShown()))
+        m_ribbonBar->Hide();
+    }
+  }
+  Layout();
+  m_console->RequestRedraw();
 }
 
 void wxMaximaFrame::ShowToolBar(bool show)

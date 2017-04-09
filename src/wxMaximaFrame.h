@@ -45,6 +45,7 @@ surrounding the worksheet.
 #include "XmlInspector.h"
 #include "StatusBar.h"
 #include <list>
+#include "RibbonBar.h"
 
 
 /*! The frame containing the menu and the sidebars
@@ -60,7 +61,15 @@ public:
    */
   void ShowToolBar(bool show);
 
-  /*! A list of all events the maxima frame can receive
+
+  /*! Shows or hides the ribbon
+    \param show
+    - true:  Show the ribbon
+    - false: Hide the ribbon
+   */
+  void ShowRibbonBar(bool show);
+
+/*! A list of all events the maxima frame can receive
 
     This list serves several purposes:
     - wxwidgets uses this list to tell us what kind of events it has to inform us about.
@@ -339,6 +348,7 @@ public:
     menu_format_pagebreak,
     menu_help_tutorials,
     menu_show_toolbar,
+    menu_show_ribbonbar,
     menu_edit_find,
     menu_history_previous,
     menu_history_next,
@@ -443,6 +453,8 @@ public:
   void StatusExportFailed();
 
 protected:
+  //! The panel the worksheet and the ribbon are drawn on.
+  wxPanel *m_workSheetBackground;
   //! The status bar
   StatusBar *m_statusBar;
   //! The menu bar
@@ -530,6 +542,7 @@ private:
 
 #endif
 protected:
+  RibbonBar *m_ribbonBar;
   //! Update the "user symbols" portion of the symbols pane.
   void UpdateUserSymbols();
 

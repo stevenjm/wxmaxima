@@ -44,7 +44,7 @@ wxImage ToolBar::GetImage(wxString name)
   int imgWidth = 24 * resolutionMultiplier;
   int width, height;
   wxDisplaySize(&width, &height);
-  if (width <= 800)
+  if (width <= 24)
     imgWidth = 24;
   if (imgWidth < 24)
     imgWidth = 24;
@@ -61,6 +61,8 @@ wxBitmap ToolBar::GetImage(wxString name)
   img = wxArtProvider::GetBitmap(name,wxART_TOOLBAR).ConvertToImage();
 
   double imgWidth = wxGetDisplayPPI().x*24/72;
+  if (imgWidth <= 24.0)
+    imgWidth = 24.0;
   double scaleFactor = imgWidth / img.GetWidth();
   img.Rescale(img.GetWidth()*scaleFactor,img.GetHeight()*scaleFactor,wxIMAGE_QUALITY_HIGH );
   return img;

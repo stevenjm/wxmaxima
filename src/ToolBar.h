@@ -48,10 +48,10 @@ public:
   };
 
 #if defined __WXGTK__
-  wxBitmap GetImage(wxString img);
+  static wxBitmap GetImage(wxString img);
 #else
 
-  wxImage GetImage(wxString img);
+  static wxImage GetImage(wxString img);
 
 #endif
 

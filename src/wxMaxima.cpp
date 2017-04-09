@@ -2556,6 +2556,8 @@ void wxMaxima::UpdateMenus(wxUpdateUIEvent &event)
   else
     menubar->Check(menu_show_toolbar, false);
 
+  menubar->Check(menu_show_ribbonbar, m_ribbonBar->IsShown());
+
   bool hidecode = !(m_console->m_configuration->ShowCodeCells());
   menubar->Check(ToolBar::tb_hideCode, hidecode);
 
@@ -3399,6 +3401,10 @@ void wxMaxima::EditMenu(wxCommandEvent &event)
 #else
       ShowToolBar(!(GetToolBar() != NULL));
 #endif
+      break;
+    case menu_show_ribbonbar:
+      std::cerr<<"menu!\n";
+      ShowRibbonBar(!m_ribbonBar->IsShown());
       break;
     case menu_edit_find:
 #if defined (__WXMSW__) || defined (__WXGTK20__) || defined (__WXMAC__)
@@ -6645,6 +6651,7 @@ EVT_UPDATE_UI(menu_show_toolbar, wxMaxima::UpdateMenus)
                 EVT_MENU(menu_insert_image, wxMaxima::InsertMenu)
                 EVT_MENU_RANGE(menu_pane_hideall, menu_pane_stats, wxMaxima::ShowPane)
                 EVT_MENU(menu_show_toolbar, wxMaxima::EditMenu)
+                EVT_MENU(menu_show_ribbonbar, wxMaxima::EditMenu)
                 EVT_LISTBOX_DCLICK(history_ctrl_id, wxMaxima::HistoryDClick)
                 EVT_LIST_ITEM_ACTIVATED(structure_ctrl_id, wxMaxima::TableOfContentsSelection)
                 EVT_BUTTON(menu_stats_histogram, wxMaxima::StatsMenu)

@@ -1,4 +1,4 @@
-find_package(wxWidgets REQUIRED std xml html adv aui core net base)
+find_package(wxWidgets REQUIRED std xml html adv aui core net base ribbon)
 
 include(${wxWidgets_USE_FILE})
 
@@ -94,6 +94,8 @@ set(SOURCE_FILES
         Plot3dWiz.h
         PlotFormatWiz.cpp
         PlotFormatWiz.h
+	RibbonBar.cpp
+	RibbonBar.h
         SeriesWiz.cpp
         SeriesWiz.h
         Setup.h
