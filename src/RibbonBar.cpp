@@ -46,13 +46,27 @@ RibbonBar::RibbonBar(wxWindow *parent, int id):wxRibbonBar(
   
   wxRibbonPanel *list_panel = new wxRibbonPanel(home, wxID_ANY, _("List"));
   wxRibbonButtonBar *listitems = new wxRibbonButtonBar(list_panel);
-  wxBitmap nullBitmap = wxBitmap(2,2);
+  wxBitmap nullBitmap = wxNullBitmap;
   listitems->AddButton(ToolBar::tb_find, _("create"),nullBitmap);
   listitems->AddButton(ToolBar::tb_find, _("first"),nullBitmap);
   listitems->AddButton(ToolBar::tb_find, _("last"),nullBitmap);
   listitems->AddButton(ToolBar::tb_find, _("nth"),nullBitmap);
   listitems->AddButton(ToolBar::tb_find, _("append"),nullBitmap);
   listitems->AddButton(ToolBar::tb_find, _("sort"),nullBitmap);
+  listitems->AddButton(ToolBar::tb_find, _("to array"),nullBitmap);
+  listitems->AddButton(ToolBar::tb_find, _("extract value"),nullBitmap);
+
+  wxRibbonPanel *simplify_panel = new wxRibbonPanel(home, wxID_ANY, _("Simplify"));
+  wxRibbonButtonBar *simplify = new wxRibbonButtonBar(simplify_panel);
+  simplify->AddButton(ToolBar::tb_find, _("simplify"),nullBitmap);
+  simplify->AddButton(ToolBar::tb_find, _("simplify radicals"),nullBitmap);
+  simplify->AddButton(ToolBar::tb_find, _("factor"),nullBitmap);
+  simplify->AddButton(ToolBar::tb_find, _("factor complex"),nullBitmap);
+  simplify->AddButton(ToolBar::tb_find, _("expand"),nullBitmap);
+  simplify->AddButton(ToolBar::tb_find, _("expand trigonometric"),nullBitmap);
+  simplify->AddButton(ToolBar::tb_find, _("collect terms"),nullBitmap);
+  simplify->AddButton(ToolBar::tb_find, _("expand logarithms"),nullBitmap);
+  simplify->AddButton(ToolBar::tb_find, _("collect logarithms"),nullBitmap);
 
   wxRibbonPanel *maxima_panel = new wxRibbonPanel(home, wxID_ANY, _("Maxima"));
   wxRibbonToolBar *maximaBar = new wxRibbonToolBar(maxima_panel);
