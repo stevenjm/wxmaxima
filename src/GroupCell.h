@@ -199,6 +199,8 @@ public:
     GroupCell::Draw() by providing MathCell::Draw() with the cell's coordinates.
    */
   void RecalculateHeight(int fontsize);
+  void RecalculateHeightInput(int fontsize);
+  void RecalculateHeightOutput(int fontsize);
 
   /*! Recalculates the width of this GroupCell and all cells inside it if needed.
     
@@ -338,6 +340,9 @@ public:
 
   //! Called on MathCtrl resize
   void OnSize();
+  
+  //! Reset the data when the input size changes
+  void InputHeightChanged();
 protected:
   GroupCell *m_hiddenTree; // here hidden (folded) tree of GCs is stored
   GroupCell *m_hiddenTreeParent; // store linkage to the parent of the fold
@@ -357,6 +362,7 @@ private:
   wxRect m_outputRect;
   bool m_inEvaluationQueue;
   bool m_lastInEvaluationQueue;
+  int m_inputWidth, m_inputHeight, m_outputWidth, m_outputHeight;
 };
 
 #endif /* GROUPCELL_H */
