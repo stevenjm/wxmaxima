@@ -39,12 +39,15 @@ class RibbonBar : public wxRibbonBar
 public:
   RibbonBar(wxWindow *parent, int id);
 private:
+
 #if defined __WXGTK__
+  static wxBitmap GetImage(wxString img);
   wxBitmap  m_followIcon;
   wxBitmap  m_needsInformationIcon;
   wxBitmap  m_PlayButton;
   wxBitmap  m_StopButton;
 #else
+  static wxImage GetImage(wxString img);
   wxImage m_followIcon;
   wxImage m_needsInformationIcon;
   wxImage m_PlayButton;

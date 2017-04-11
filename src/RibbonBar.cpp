@@ -31,6 +31,7 @@
 
 #include "RibbonBar.h"
 #include "ToolBar.h"
+#include <wx/artprov.h>
 
 RibbonBar::RibbonBar(wxWindow *parent, int id):wxRibbonBar(
   parent,id
@@ -46,7 +47,7 @@ RibbonBar::RibbonBar(wxWindow *parent, int id):wxRibbonBar(
   
   wxRibbonPanel *list_panel = new wxRibbonPanel(home, wxID_ANY, _("List"));
   wxRibbonButtonBar *listitems = new wxRibbonButtonBar(list_panel);
-  wxBitmap nullBitmap = wxBitmap(2,2);
+  wxBitmap nullBitmap = wxBitmap(10,10);
   listitems->AddButton(ToolBar::tb_find, _("create"),ToolBar::GetImage(wxT("list_new")));
   listitems->AddButton(ToolBar::tb_find, _("first"),ToolBar::GetImage(wxT("list_first")));
   listitems->AddButton(ToolBar::tb_find, _("last"),ToolBar::GetImage(wxT("list_last")));
@@ -116,3 +117,23 @@ RibbonBar::RibbonBar(wxWindow *parent, int id):wxRibbonBar(
   Realize();
 }
 
+#if defined (__WXMSW__) || defined (__WXMAC__)
+
+wxImage RibbonBar::GetImage(wxString name)
+{
+  Dirstructure dirstructure;
+  wxImage img = wxImage(dirstructure.ConfigToolbarDir() + name + wxT(".png"));
+  return img;
+}
+
+#else
+wxBitmap RibbonBar::GetImage(wxString name)
+{
+  Dirstructure dirstructure;
+  wxImage img;
+  img = wxArtProvider::GetBitmap(name,wxART_TOOLBAR).ConvertToImage();
+  if(!img.IsOk())
+    img = wxImage(dirstructure.ConfigToolbarDir() + name + wxT(".png"));
+  return img;
+}
+#endif
