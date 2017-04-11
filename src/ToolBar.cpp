@@ -57,8 +57,11 @@ wxImage ToolBar::GetImage(wxString name)
 #else
 wxBitmap ToolBar::GetImage(wxString name)
 {
+  Dirstructure dirstructure;
   wxImage img;
   img = wxArtProvider::GetBitmap(name,wxART_TOOLBAR).ConvertToImage();
+  if(!img.IsOk())
+    img = wxImage(dirstructure.ConfigToolbarDir() + name + wxT(".png"));
 
   double imgWidth = wxGetDisplayPPI().x*24/72;
   if (imgWidth <= 24.0)

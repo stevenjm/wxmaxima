@@ -46,15 +46,17 @@ RibbonBar::RibbonBar(wxWindow *parent, int id):wxRibbonBar(
   
   wxRibbonPanel *list_panel = new wxRibbonPanel(home, wxID_ANY, _("List"));
   wxRibbonButtonBar *listitems = new wxRibbonButtonBar(list_panel);
-  wxBitmap nullBitmap = wxNullBitmap;
-  listitems->AddButton(ToolBar::tb_find, _("create"),nullBitmap);
-  listitems->AddButton(ToolBar::tb_find, _("first"),nullBitmap);
-  listitems->AddButton(ToolBar::tb_find, _("last"),nullBitmap);
-  listitems->AddButton(ToolBar::tb_find, _("nth"),nullBitmap);
-  listitems->AddButton(ToolBar::tb_find, _("append"),nullBitmap);
-  listitems->AddButton(ToolBar::tb_find, _("sort"),nullBitmap);
-  listitems->AddButton(ToolBar::tb_find, _("to array"),nullBitmap);
-  listitems->AddButton(ToolBar::tb_find, _("extract value"),nullBitmap);
+  wxBitmap nullBitmap = wxBitmap(2,2);
+  listitems->AddButton(ToolBar::tb_find, _("create"),ToolBar::GetImage(wxT("list_new")));
+  listitems->AddButton(ToolBar::tb_find, _("first"),ToolBar::GetImage(wxT("list_first")));
+  listitems->AddButton(ToolBar::tb_find, _("last"),ToolBar::GetImage(wxT("list_last")));
+  listitems->AddButton(ToolBar::tb_find, _("first n"),ToolBar::GetImage(wxT("list_firstn")));
+  listitems->AddButton(ToolBar::tb_find, _("last n"),ToolBar::GetImage(wxT("list_lastn")));
+  listitems->AddButton(ToolBar::tb_find, _("nth"),ToolBar::GetImage(wxT("list_nth")));
+  listitems->AddButton(ToolBar::tb_find, _("append"),ToolBar::GetImage(wxT("list_append")));
+  listitems->AddButton(ToolBar::tb_find, _("sort"),ToolBar::GetImage(wxT("list_sort")));
+  listitems->AddButton(ToolBar::tb_find, _("extract value"),ToolBar::GetImage(wxT("list_extract")));
+  listitems->AddButton(ToolBar::tb_find, _("reverse"),ToolBar::GetImage(wxT("list_reverse")));
 
   wxRibbonPanel *simplify_panel = new wxRibbonPanel(home, wxID_ANY, _("Simplify"));
   wxRibbonButtonBar *simplify = new wxRibbonButtonBar(simplify_panel);
