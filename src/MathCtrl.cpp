@@ -2542,7 +2542,7 @@ void MathCtrl::OpenHCaret(wxString txt, int type)
 void MathCtrl::Evaluate()
 {
   wxMenuEvent *EvaluateEvent = new wxMenuEvent(wxEVT_MENU, wxMaximaFrame::menu_evaluate);
-  GetParent()->GetEventHandler()->QueueEvent(EvaluateEvent);
+  GetParent()->GetParent()->GetEventHandler()->QueueEvent(EvaluateEvent);
 }
 
 /***
@@ -2623,7 +2623,7 @@ void MathCtrl::OnKeyDown(wxKeyEvent &event)
         wxCommandEvent *evaluateEvent = new wxCommandEvent;
         evaluateEvent->SetEventType(wxEVT_MENU);
         evaluateEvent->SetId(popid_evaluate_section);
-        GetParent()->GetEventHandler()->QueueEvent(evaluateEvent);
+        GetParent()->GetParent()->GetEventHandler()->QueueEvent(evaluateEvent);
       }
       else
       {
@@ -2643,7 +2643,7 @@ void MathCtrl::OnKeyDown(wxKeyEvent &event)
         wxCommandEvent *evaluateEvent = new wxCommandEvent;
         evaluateEvent->SetEventType(wxEVT_MENU);
         evaluateEvent->SetId(popid_evaluate_section);
-        GetParent()->GetEventHandler()->QueueEvent(evaluateEvent);
+        GetParent()->GetParent()->GetEventHandler()->QueueEvent(evaluateEvent);
       }
       else
       {

@@ -47,7 +47,7 @@ void ContentAssistantPopup::UpdateResults()
       );
     case 0:
       m_editor->ClearSelection();
-      this->GetParent()->GetParent()->Refresh();
+      this->GetParent()->GetParent()->GetParent()->Refresh();
       if (!m_editor->IsActive())
         m_editor->ActivateCursor();
       Dismiss();
@@ -110,7 +110,7 @@ void ContentAssistantPopup::OnKeyPress(wxKeyEvent &event)
                 m_editor->GetSelectionString(),
                 m_completions[selection]
         );
-      this->GetParent()->GetParent()->Refresh();
+      this->GetParent()->GetParent()->GetParent()->Refresh();
       if (!m_editor->IsActive())
         m_editor->ActivateCursor();
       Dismiss();
@@ -119,7 +119,7 @@ void ContentAssistantPopup::OnKeyPress(wxKeyEvent &event)
       break;
     case WXK_LEFT:
     case WXK_ESCAPE:
-      this->GetParent()->GetParent()->Refresh();
+      this->GetParent()->GetParent()->GetParent()->Refresh();
       if (!m_editor->IsActive())
         m_editor->ActivateCursor();
       Dismiss();
@@ -161,7 +161,7 @@ void ContentAssistantPopup::OnKeyPress(wxKeyEvent &event)
         UpdateResults();
       }
       else
-        this->GetParent()->GetParent()->Refresh();
+        this->GetParent()->GetParent()->GetParent()->Refresh();
       if (!m_editor->IsActive())
         m_editor->ActivateCursor();
 
@@ -194,7 +194,7 @@ void ContentAssistantPopup::OnKeyPress(wxKeyEvent &event)
                 m_editor->GetSelectionString(),
                 m_completions[selection]
         );
-        this->GetParent()->GetParent()->Refresh();
+        this->GetParent()->GetParent()->GetParent()->Refresh();
         if (!m_editor->IsActive())
           m_editor->ActivateCursor();
         Dismiss();
@@ -202,14 +202,14 @@ void ContentAssistantPopup::OnKeyPress(wxKeyEvent &event)
 
         // Tell MathCtrl to handle this key event the normal way.
         wxKeyEvent *keyEvent = new wxKeyEvent(event);
-        GetParent()->GetEventHandler()->QueueEvent(keyEvent);
+        GetParent()->GetParent()->GetEventHandler()->QueueEvent(keyEvent);
 
       }
       else
         event.Skip();
     }
   }
-  this->GetParent()->GetParent()->Refresh();
+  this->GetParent()->GetParent()->GetParent()->Refresh();
 }
 
 void ContentAssistantPopup::OnClick(wxCommandEvent &event)
@@ -223,7 +223,7 @@ void ContentAssistantPopup::OnClick(wxCommandEvent &event)
             m_editor->GetSelectionString(),
             m_completions[selection]
     );
-    this->GetParent()->GetParent()->Refresh();
+    this->GetParent()->GetParent()->GetParent()->Refresh();
     if (!m_editor->IsActive())
       m_editor->ActivateCursor();
     Dismiss();

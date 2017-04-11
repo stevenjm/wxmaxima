@@ -36,6 +36,17 @@
 #include <wx/image.h>
 #include <wx/filename.h>
 
+void wxMaximaFrame::OnKeyDownInWorksheetPanel(wxKeyEvent &event)
+{
+  if ((event.ControlDown() || event.ShiftDown()) && (event.GetKeyCode() == WXK_RETURN))
+  {
+    wxKeyEvent *keyEvent = new wxKeyEvent(event);
+    GetParent()->GetEventHandler()->QueueEvent(keyEvent);
+  }
+
+  event.Skip();
+}
+
 wxMaximaFrame::wxMaximaFrame(wxWindow *parent, int id, const wxString &title,
                              const wxPoint &pos, const wxSize &size,
                              long style) :
@@ -48,6 +59,10 @@ wxMaximaFrame::wxMaximaFrame(wxWindow *parent, int id, const wxString &title,
   m_manager.SetManagedWindow(this);
 
   m_workSheetBackground = new wxPanel(this,-1);
+  // m_workSheetBackground->Connect(wxEVT_CHAR_HOOK,
+  //                                wxKeyEventHandler(wxMaximaFrame::OnKeyDownInWorksheetPanel),
+  //                                NULL, this);
+  
   wxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 
   // ribbon
@@ -1568,4 +1583,3 @@ void wxMaximaFrame::ShowToolBar(bool show)
   }
 #endif
 }
-

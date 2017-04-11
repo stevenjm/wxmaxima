@@ -460,12 +460,6 @@ private:
 
   void OnDoubleClick(wxMouseEvent &event);
 
-  /*! A special key has been pressed
-
-    Printable characters are handled by OnChar instead.
-   */
-  void OnKeyDown(wxKeyEvent &event);
-
   //! Key pressed inside a cell
   void OnCharInActive(wxKeyEvent &event);
 
@@ -611,6 +605,12 @@ private:
 
 
 public:
+  /*! A special key has been pressed
+    
+    Printable characters are handled by OnChar instead.
+  */
+  void OnKeyDown(wxKeyEvent &event);
+
   //! The central settings storage
   Configuration *m_configuration;
 

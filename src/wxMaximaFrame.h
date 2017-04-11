@@ -453,6 +453,9 @@ public:
   void StatusExportFailed();
 
 protected:
+  //! A key was pressed and arrives in the panel containing the worksheet.
+  void OnKeyDownInWorksheetPanel(wxKeyEvent &event);
+
   //! The panel the worksheet and the ribbon are drawn on.
   wxPanel *m_workSheetBackground;
   //! The status bar
