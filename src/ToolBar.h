@@ -47,7 +47,7 @@ public:
   
   wxImage GetImage(wxString img);
 
-  ToolBar(wxToolBar *tbar);
+  ToolBar(wxAuiToolBar *tbar);
 
   virtual ~ToolBar();
 
@@ -56,7 +56,7 @@ public:
   {
     if (!m_needsInformation)
     {
-      m_toolBar->SetToolNormalBitmap(tb_follow, m_needsInformationIcon);
+      m_toolBar->SetToolBitmap(tb_follow, m_needsInformationIcon);
       m_needsInformation = true;
     }
   }
@@ -66,7 +66,7 @@ public:
   {
     if (m_needsInformation)
     {
-      m_toolBar->SetToolNormalBitmap(tb_follow, m_followIcon);
+      m_toolBar->SetToolBitmap(tb_follow, m_followIcon);
       m_needsInformation = false;
     }
   }
@@ -76,7 +76,7 @@ public:
     m_toolBar->EnableTool(id, enable);
   }
 
-  wxToolBar *GetToolBar()
+  wxAuiToolBar *GetToolBar()
   {
     return m_toolBar;
   }
@@ -202,7 +202,7 @@ private:
   bool m_canSave_old;
   bool m_canPrint_old;
   bool m_canEvalTillHere_old;
-  wxToolBar *m_toolBar;
+  wxAuiToolBar *m_toolBar;
   AnimationStartStopState m_AnimationStartStopState;
   //! True if we show the "needs information" button.
   bool m_needsInformation;

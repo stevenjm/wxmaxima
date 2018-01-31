@@ -358,6 +358,25 @@ void wxMaximaFrame::do_layout()
                             Fixed().
                             Left());
 
+  wxAuiToolBar *tbar = new wxAuiToolBar(this,-1); 
+  m_console->m_mainToolBar = new ToolBar(tbar);
+  m_manager.AddPane(tbar,wxAuiPaneInfo().Name(wxT("toolbar")).
+                    DockFixed(true).
+                    PaneBorder(0).
+                    Gripper(true).
+                    GripperTop(false).
+                    Show(true).
+                    Position(0).
+                    Layer(0).
+                    TopDockable(true).
+                    BottomDockable(true).
+                    LeftDockable(false).
+                    RightDockable(false).
+                    Floatable(false).
+                    DockFixed().
+                    CloseButton(false).
+                    Top());
+  
   m_manager.GetPane(wxT("greek")) = m_manager.GetPane(wxT("greek")).
             MinSize(greekPane->GetEffectiveMinSize()).
             BestSize(greekPane->GetEffectiveMinSize()).
@@ -1409,7 +1428,6 @@ void wxMaximaFrame::ShowPane(Event id, bool show)
       wxASSERT(false);
       break;
   }
-
   m_manager.Update();
 }
 
@@ -1755,34 +1773,6 @@ wxPanel *wxMaximaFrame::CreateFormatPane()
 
 void wxMaximaFrame::ShowToolBar(bool show)
 {
-#if defined __WXMAC__ || defined __WXMSW__
-  wxToolBar *tbar = GetToolBar();
-  if (tbar == NULL)
-  {
-    tbar = CreateToolBar();
-    m_console->m_mainToolBar = new ToolBar(tbar);
-    SetToolBar(m_console->m_mainToolBar->GetToolBar());
-  }
-  tbar->Show(show);
-#if defined __WXMSW__
-  PostSizeEvent();
-#endif
-#else
-  if (show) {
-    if (m_console->m_mainToolBar == NULL) {
-      wxToolBar *tbar = CreateToolBar();
-      m_console->m_mainToolBar=new ToolBar(tbar);
-    }
-    SetToolBar(m_console->m_mainToolBar->GetToolBar());
-  }
-  else
-  {
-    if(m_console->m_mainToolBar)
-    {
-      SetToolBar(NULL);
-      wxDELETE(m_console->m_mainToolBar);
-      m_console->m_mainToolBar = NULL;
-    }
-  }
-#endif
+  m_manager.GetPane(wxT("toolbar")).Show(show);
+  m_manager.Update();
 }

@@ -105,7 +105,7 @@ void ToolBar::UpdateSlider(SlideShow *cell)
   }
 }
 
-ToolBar::ToolBar(wxToolBar *tbar)
+ToolBar::ToolBar(wxAuiToolBar *tbar)
 {
   m_defaultCellStyle = GC_TYPE_CODE;
   m_canCopy_old = true;
@@ -246,7 +246,7 @@ ToolBar::ToolBar(wxToolBar *tbar)
   m_toolBar->AddTool(tb_hideCode, _("Hide Code"),
                      GetImage(wxT("weather-few-clouds")),
                      _("Toggle the visibility of code cells"));
-  m_toolBar->AddStretchableSpace();
+  m_toolBar->AddStretchSpacer();
   m_toolBar->AddTool(tb_help, _("Help"),
                      GetImage(wxT("gtk-help")),
                      _("Show Maxima help"));
@@ -361,7 +361,7 @@ void ToolBar::AnimationButtonState(AnimationStartStopState state)
         if (m_AnimationStartStopState != Running)
         {
 #ifndef __WXMSW__
-          m_toolBar->SetToolNormalBitmap(tb_animation_startStop, m_StopButton);
+          m_toolBar->SetToolBitmap(tb_animation_startStop, m_StopButton);
 #endif
         }
         m_toolBar->EnableTool(tb_animation_startStop, true);
@@ -370,7 +370,7 @@ void ToolBar::AnimationButtonState(AnimationStartStopState state)
         if (m_AnimationStartStopState == Running)
         {
 #ifndef __WXMSW__
-          m_toolBar->SetToolNormalBitmap(tb_animation_startStop, m_PlayButton);
+          m_toolBar->SetToolBitmap(tb_animation_startStop, m_PlayButton);
 #endif
         }
         m_toolBar->EnableTool(tb_animation_startStop, true);
@@ -387,7 +387,7 @@ void ToolBar::AnimationButtonState(AnimationStartStopState state)
         if (m_AnimationStartStopState == Running)
         {
 #ifndef __WXMSW__
-          m_toolBar->SetToolNormalBitmap(tb_animation_startStop, m_PlayButton);
+          m_toolBar->SetToolBitmap(tb_animation_startStop, m_PlayButton);
 #endif
         }
         break;
