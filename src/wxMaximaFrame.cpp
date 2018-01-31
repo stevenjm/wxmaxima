@@ -212,12 +212,6 @@ wxMaximaFrame::~wxMaximaFrame()
   wxString perspective = m_manager.SavePerspective();
 
   wxConfig::Get()->Write(wxT("AUI/perspective"), perspective);
-#if defined __WXMAC__ || defined __WXMSW__
-  wxConfig::Get()->Write(wxT("AUI/toolbar"),
-                         GetToolBar() != NULL && GetToolBar()->IsShown());
-#else
-  wxConfig::Get()->Write(wxT("AUI/toolbar"), (m_console->m_mainToolBar!=NULL));
-#endif
   m_manager.UnInit();
 
   // We cannot call delete here as we don't know if there are still timer-
@@ -357,10 +351,11 @@ void wxMaximaFrame::do_layout()
                             PaneBorder(true).
                             Fixed().
                             Left());
-
-  wxAuiToolBar *tbar = new wxAuiToolBar(this,-1); 
-  m_console->m_mainToolBar = new ToolBar(tbar);
-  m_manager.AddPane(tbar,wxAuiPaneInfo().Name(wxT("toolbar")).
+  
+  m_console->m_mainToolBar = new ToolBar(this);
+  
+  m_manager.AddPane(m_console->m_mainToolBar,
+                    wxAuiPaneInfo().Name(wxT("toolbar")).
                     ToolbarPane().Top().Gripper(false));
   
   m_manager.GetPane(wxT("greek")) = m_manager.GetPane(wxT("greek")).

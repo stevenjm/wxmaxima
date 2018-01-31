@@ -82,7 +82,7 @@ wxImage ToolBar::GetImage(wxString name)
 ToolBar::~ToolBar()
 {
   m_plotSlider = NULL;
-  m_toolBar->Destroy();
+  Destroy();
 }
 
 void ToolBar::UpdateSlider(SlideShow *cell)
@@ -105,7 +105,8 @@ void ToolBar::UpdateSlider(SlideShow *cell)
   }
 }
 
-ToolBar::ToolBar(wxAuiToolBar *tbar)
+ToolBar::ToolBar(wxWindow *parent) : wxAuiToolBar(parent,-1, wxDefaultPosition, wxDefaultSize,
+                                                  wxAUI_TB_OVERFLOW | wxAUI_TB_PLAIN_BACKGROUND)
 {
   m_defaultCellStyle = GC_TYPE_CODE;
   m_canCopy_old = true;
@@ -114,11 +115,10 @@ ToolBar::ToolBar(wxAuiToolBar *tbar)
   m_canPrint_old = true;
   m_canEvalTillHere_old = true;
 
-  m_toolBar = tbar;
   m_needsInformation = false;
   m_AnimationStartStopState = Inactive;
 
-  m_toolBar->SetToolBitmapSize(wxSize(24, 24));
+  SetToolBitmapSize(wxSize(24, 24));
 
 #if defined __WXMSW__
   // If there are packaging issues we want to have a detailed error message.
@@ -128,67 +128,67 @@ ToolBar::ToolBar(wxAuiToolBar *tbar)
   wxASSERT_MSG(test128.IsFileReadable(), _("Expected the icon files to be found at") + dirstructure.ConfigToolbarDir());
   wxASSERT_MSG(test192.IsFileReadable(), _("Expected the icon files to be found at") + dirstructure.ConfigToolbarDir());
                
-  m_toolBar->AddTool(tb_new, _("New"),
+  AddTool(tb_new, _("New"),
                      GetImage(wxT("gtk-new")),
                      _("New document"));
 #endif
-  m_toolBar->AddTool(tb_open, _("Open"),
+  AddTool(tb_open, _("Open"),
                      GetImage(wxT("gtk-open")),
                      _("Open document"));
-  m_toolBar->AddTool(tb_save, _("Save"),
+  AddTool(tb_save, _("Save"),
                      GetImage(wxT("gtk-save")),
                      _("Save document"));
 #ifndef __WXMAC__
-  m_toolBar->AddSeparator();
+  AddSeparator();
 #endif
-  m_toolBar->AddTool(tb_print, _("Print"),
+  AddTool(tb_print, _("Print"),
                      GetImage(wxT("gtk-print")),
                      _("Print document"));
-  m_toolBar->AddTool(tb_pref, _("Options"),
+  AddTool(tb_pref, _("Options"),
                      GetImage(wxT("gtk-preferences")),
                      _("Configure wxMaxima"));
 #ifndef __WXMAC__
-  m_toolBar->AddSeparator();
+  AddSeparator();
 #endif
-  m_toolBar->AddTool(tb_cut, _("Cut"),
+  AddTool(tb_cut, _("Cut"),
                      GetImage(wxT("gtk-cut")),
                      _("Cut selection"));
-  m_toolBar->AddTool(tb_copy, _("Copy"),
+  AddTool(tb_copy, _("Copy"),
                      GetImage(wxT("gtk-copy")),
                      _("Copy selection"));
-  m_toolBar->AddTool(tb_paste, _("Paste"),
+  AddTool(tb_paste, _("Paste"),
                      GetImage(wxT("gtk-paste")),
                      _("Paste from clipboard"));
-  m_toolBar->AddTool(tb_select_all, _("Select all"),
+  AddTool(tb_select_all, _("Select all"),
                      GetImage(wxT("gtk-select-all")),
                      _("Select all"));
 #ifndef __WXMAC__
-  m_toolBar->AddSeparator();
+  AddSeparator();
 #endif
-  m_toolBar->AddTool(tb_find, _("Find"),
+  AddTool(tb_find, _("Find"),
                      GetImage(wxT("gtk-find")),
                      _("Find and replace"));
 #ifndef __WXMAC__
-  m_toolBar->AddSeparator();
+  AddSeparator();
 #endif
-  m_toolBar->AddTool(menu_restart_id, _("Restart maxima"),
+  AddTool(menu_restart_id, _("Restart maxima"),
                      GetImage(wxT("view-refresh")),
                      _("Completely stop maxima and restart it"));
-  m_toolBar->AddTool(tb_interrupt, _("Interrupt"),
+  AddTool(tb_interrupt, _("Interrupt"),
                      GetImage(wxT("gtk-stop")),
                      _("Interrupt current computation. To completely restart maxima press the button left to this one."));
   m_followIcon = GetImage(wxT("weather-clear"));
   m_needsInformationIcon = GetImage(wxT("software-update-urgent"));
-  m_toolBar->AddTool(tb_follow, _("Follow"), m_followIcon,
+  AddTool(tb_follow, _("Follow"), m_followIcon,
                      _("Return to the cell that is currently being evaluated"));
-  m_toolBar->EnableTool(tb_follow, false);
+  EnableTool(tb_follow, false);
 
-  m_toolBar->AddTool(tb_evaltillhere, _("Evaluate to point"),
+  AddTool(tb_evaltillhere, _("Evaluate to point"),
                      GetImage(wxT("go-bottom")),
                      _("Evaluate the file from its beginning to the cell above the cursor"));
 
 #ifndef __WXMAC__
-  m_toolBar->AddSeparator();
+  AddSeparator();
 #endif
   wxArrayString textStyle;
   textStyle.Add(_("Maths"));
@@ -197,7 +197,7 @@ ToolBar::ToolBar(wxAuiToolBar *tbar)
   textStyle.Add(_("Section"));
   textStyle.Add(_("Subsection"));
   textStyle.Add(_("Subsubsection"));
-  m_textStyle = new wxChoice(m_toolBar, tb_changeStyle, wxDefaultPosition, wxDefaultSize, textStyle);
+  m_textStyle = new wxChoice(this, tb_changeStyle, wxDefaultPosition, wxDefaultSize, textStyle);
   m_textStyle->SetToolTip(_("For faster creation of cells the following shortcuts exist:\n\n"
                             "   Ctrl+0: Math cell\n"
                             "   Ctrl+1: Text cell\n"
@@ -205,9 +205,9 @@ ToolBar::ToolBar(wxAuiToolBar *tbar)
                             "   Ctrl+3: Section cell\n"
                             "   Ctrl+4: Subsection cell\n"
                             "   Ctrl+5: Sub-Subsection cell"));
-  m_toolBar->AddControl(m_textStyle);
+  AddControl(m_textStyle);
 #ifndef __WXMAC__
-  m_toolBar->AddSeparator();
+  AddSeparator();
 #endif
   
   // Seems like on MSW changing the image of this button has strange side-effects
@@ -222,16 +222,16 @@ ToolBar::ToolBar(wxAuiToolBar *tbar)
   // It felt like a good idea to combine the play and the stop button.
   // On windows changing a button seems to somehow stop the animation, though, so
   // this OS requires the buttons to be separate.
-  m_toolBar->AddTool(tb_animation_startStop, _("Start or Stop animation"),
+  AddTool(tb_animation_startStop, _("Start or Stop animation"),
                      m_PlayButton,
                      _("Start or stop the currently selected animation that has been created with the with_slider class of commands"));
-  m_toolBar->EnableTool(tb_animation_startStop, false);
+  EnableTool(tb_animation_startStop, false);
   int sliderWidth = wxGetDisplayPPI().x * 200 / 72;
   int width, height;
   wxDisplaySize(&width, &height);
   if (width < 800)
     sliderWidth = MIN(sliderWidth, 100);
-  m_plotSlider = new wxSlider(m_toolBar, plot_slider_id, 0, 0, 10,
+  m_plotSlider = new wxSlider(this, plot_slider_id, 0, 0, 10,
                               wxDefaultPosition, wxSize(sliderWidth, -1),
                               wxSL_HORIZONTAL | !wxSL_AUTOTICKS);
   m_plotSlider->SetToolTip(
@@ -239,18 +239,18 @@ ToolBar::ToolBar(wxAuiToolBar *tbar)
   m_plotSlider->Enable(false);
   m_slideShowMaxIndex = -1;
   m_slideShowDisplayedIndex = -1;
-  m_toolBar->AddControl(m_plotSlider);
+  AddControl(m_plotSlider);
 #ifndef __WXMAC__
-  m_toolBar->AddSeparator();
+  AddSeparator();
 #endif
-  m_toolBar->AddTool(tb_hideCode, _("Hide Code"),
+  AddTool(tb_hideCode, _("Hide Code"),
                      GetImage(wxT("weather-few-clouds")),
                      _("Toggle the visibility of code cells"));
-  m_toolBar->AddStretchSpacer();
-  m_toolBar->AddTool(tb_help, _("Help"),
+  AddStretchSpacer();
+  AddTool(tb_help, _("Help"),
                      GetImage(wxT("gtk-help")),
                      _("Show Maxima help"));
-  m_toolBar->Realize();
+  Realize();
 }
 
 void ToolBar::SetDefaultCellStyle()
@@ -361,23 +361,23 @@ void ToolBar::AnimationButtonState(AnimationStartStopState state)
         if (m_AnimationStartStopState != Running)
         {
 #ifndef __WXMSW__
-          m_toolBar->SetToolBitmap(tb_animation_startStop, m_StopButton);
+          SetToolBitmap(tb_animation_startStop, m_StopButton);
 #endif
         }
-        m_toolBar->EnableTool(tb_animation_startStop, true);
+        EnableTool(tb_animation_startStop, true);
         break;
       case Stopped:
         if (m_AnimationStartStopState == Running)
         {
 #ifndef __WXMSW__
-          m_toolBar->SetToolBitmap(tb_animation_startStop, m_PlayButton);
+          SetToolBitmap(tb_animation_startStop, m_PlayButton);
 #endif
         }
-        m_toolBar->EnableTool(tb_animation_startStop, true);
+        EnableTool(tb_animation_startStop, true);
         m_plotSlider->Enable(true);
         break;
       case Inactive:
-        m_toolBar->EnableTool(tb_animation_startStop, false);
+        EnableTool(tb_animation_startStop, false);
         m_plotSlider->Enable(false);
         m_plotSlider->SetToolTip(
                 _("After clicking on animations created with with_slider_draw() or similar this slider allows to change the current frame."));
@@ -387,7 +387,7 @@ void ToolBar::AnimationButtonState(AnimationStartStopState state)
         if (m_AnimationStartStopState == Running)
         {
 #ifndef __WXMSW__
-          m_toolBar->SetToolBitmap(tb_animation_startStop, m_PlayButton);
+          SetToolBitmap(tb_animation_startStop, m_PlayButton);
 #endif
         }
         break;
@@ -395,3 +395,12 @@ void ToolBar::AnimationButtonState(AnimationStartStopState state)
     m_AnimationStartStopState = state;
   }
 }
+
+void ToolBar::OnSize(wxSizeEvent &event)
+{
+  event.Skip();
+}
+
+BEGIN_EVENT_TABLE(ToolBar, wxAuiToolBar)
+EVT_SIZE(ToolBar::OnSize)
+END_EVENT_TABLE()

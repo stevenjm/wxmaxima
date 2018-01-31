@@ -297,7 +297,6 @@ MathCtrl::~MathCtrl()
   if (HasCapture())
     ReleaseMouse();
 
-  wxDELETE(m_mainToolBar);
   m_mainToolBar = NULL;
 
   if (m_tree != NULL)
