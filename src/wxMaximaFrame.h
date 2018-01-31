@@ -639,6 +639,8 @@ protected:
 
   void LoadRecentDocuments();
 
+  bool ToolbarIsShown();
+  
   void SaveRecentDocuments();
 
   wxAuiManager m_manager;

@@ -361,21 +361,7 @@ void wxMaximaFrame::do_layout()
   wxAuiToolBar *tbar = new wxAuiToolBar(this,-1); 
   m_console->m_mainToolBar = new ToolBar(tbar);
   m_manager.AddPane(tbar,wxAuiPaneInfo().Name(wxT("toolbar")).
-                    DockFixed(true).
-                    PaneBorder(0).
-                    Gripper(true).
-                    GripperTop(false).
-                    Show(true).
-                    Position(0).
-                    Layer(0).
-                    TopDockable(true).
-                    BottomDockable(true).
-                    LeftDockable(false).
-                    RightDockable(false).
-                    Floatable(false).
-                    DockFixed().
-                    CloseButton(false).
-                    Top());
+                    ToolbarPane().Top().Gripper(false));
   
   m_manager.GetPane(wxT("greek")) = m_manager.GetPane(wxT("greek")).
             MinSize(greekPane->GetEffectiveMinSize()).
@@ -418,10 +404,6 @@ void wxMaximaFrame::do_layout()
   m_manager.GetPane(wxT("structure")).Caption(_("Table of Contents"));
   m_manager.GetPane(wxT("history")).Caption(_("History"));
  
-  bool toolbar = true;
-  config->Read(wxT("AUI/toolbar"), &toolbar);
-  ShowToolBar(toolbar);
-  
   m_manager.Update();
 }
 
@@ -1098,6 +1080,12 @@ m_listMenu->AppendSeparator();
 
 }
 
+bool wxMaximaFrame::ToolbarIsShown()
+{
+  return m_manager.GetPane(wxT("toolbar")).IsShown();
+}
+
+
 void wxMaximaFrame::LoadRecentDocuments()
 {
   wxConfigBase *config = wxConfig::Get();
@@ -1422,7 +1410,6 @@ void wxMaximaFrame::ShowPane(Event id, bool show)
       m_manager.GetPane(wxT("symbols")).Show(false);
 #endif
       m_manager.GetPane(wxT("format")).Show(false);
-      ShowToolBar(false);
       break;
     default:
       wxASSERT(false);
