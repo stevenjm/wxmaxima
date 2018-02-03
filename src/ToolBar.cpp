@@ -259,6 +259,7 @@ ToolBar::ToolBar(wxWindow *parent) : wxAuiToolBar(parent,-1, wxDefaultPosition, 
   // item.SetLabel(_("Customize..."));
   // append_items.Add(item);
   //SetCustomOverflowItems(prepend_items, append_items);
+  SetOverflowVisible(true);
   Realize();
 }
 
@@ -407,6 +408,7 @@ void ToolBar::AnimationButtonState(AnimationStartStopState state)
 
 void ToolBar::OnSize(wxSizeEvent &event)
 {
+  Refresh();
   event.Skip();
 }
 
