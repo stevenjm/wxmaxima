@@ -82,7 +82,6 @@ wxImage ToolBar::GetImage(wxString name)
 ToolBar::~ToolBar()
 {
   m_plotSlider = NULL;
-  Destroy();
 }
 
 void ToolBar::UpdateSlider(SlideShow *cell)
@@ -250,6 +249,16 @@ ToolBar::ToolBar(wxWindow *parent) : wxAuiToolBar(parent,-1, wxDefaultPosition, 
   AddTool(tb_help, _("Help"),
                      GetImage(wxT("gtk-help")),
                      _("Show Maxima help"));
+  wxAuiToolBarItemArray prepend_items;
+  wxAuiToolBarItemArray append_items;
+  // wxAuiToolBarItem item;
+  // item.SetKind(wxITEM_SEPARATOR);
+  // append_items.Add(item);
+  // item.SetKind(wxITEM_NORMAL);
+  // item.SetId(-1);
+  // item.SetLabel(_("Customize..."));
+  // append_items.Add(item);
+  //SetCustomOverflowItems(prepend_items, append_items);
   Realize();
 }
 
