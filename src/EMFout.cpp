@@ -51,7 +51,7 @@ Emfout::Emfout(Configuration **configuration, wxString filename, double scale)
   m_dc = NULL;
   
   wxString m_tempFileName = wxFileName::CreateTempFileName(wxT("wxmaxima_size_"));
-  m_recalculationDc = new wxEnhMetaFileDC(m_tempFileName,700*m_scale,50000*m_scale,20*m_scale);
+  m_recalculationDc = new wxEnhMetaFileDC(m_tempFileName,700*m_scale,50000*m_scale,m_scale);
 #if wxCHECK_VERSION(3, 1, 0)
   m_recalculationDc->SetBitmapHandler(new wxEMFBitmapEmbedHandler());
 #endif
@@ -132,7 +132,7 @@ bool Emfout::Layout()
 
   wxDELETE(m_dc);
   // Let's switch to a DC of the right size for our object.
-  m_dc = new wxEnhMetaFileDC(m_filename, m_width, m_height, 20*m_scale);
+  m_dc = new wxEnhMetaFileDC(m_filename, m_width, m_height, m_scale);
 #if wxCHECK_VERSION(3, 1, 0)
   m_dc->SetBitmapHandler(new wxEMFBitmapEmbedHandler());
 #endif
