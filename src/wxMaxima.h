@@ -167,7 +167,7 @@ public:
   
   void StripComments(wxString &s);
 
-  void SendMaxima(wxString s, bool history = false);
+  void SendMaxima(wxString s, bool history = false, bool checkForUnmatchedStrings=true);
 
   //! Open a file
   bool OpenFile(wxString file,
