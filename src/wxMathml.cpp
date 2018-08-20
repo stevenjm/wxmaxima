@@ -3,6 +3,7 @@
 wxMathML::wxMathML()
     { 
       m_wxMathML =
+	"(format t \"<suppressOutput>\")\n"
 	";; wxMaxima xml format (based on David Drysdale MathML printing)\n"
 	";; Andrej Vodopivec,  2004-2014\n"
 	";; Gunter Königsmann, 2014-2018\n"
@@ -2057,6 +2058,8 @@ wxMathML::wxMathML()
 	"	     (t\n"
 	"	      (merror \"Maxima bug: Unknown file type ~M\" type)))\n"
 	"       searched-for)))\n"
+	"  (force-output)\n"
+	"  (format t \"</suppressOutput>\")\n"
 	"  ;; Publish all new global variables maxima might contain to wxMaxima\'s\n"
 	"  ;; autocompletion feature.\n"
 	"  (wxPrint_autoompletesymbols)\n"
