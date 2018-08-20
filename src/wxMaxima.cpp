@@ -36,6 +36,7 @@
 #include <wchar.h>
 #endif
 #include "wxMaxima.h"
+#include "wxMathml.h"
 #include "ImgCell.h"
 #include "DrawWiz.h"
 #include "SubstituteWiz.h"
@@ -2623,9 +2624,9 @@ void wxMaxima::SetupVariables()
   SendMaxima(wxT(":lisp-quiet (setf $in_netmath nil)\n"));
   SendMaxima(wxT(":lisp-quiet (setf $show_openplot t)\n"));
 
-    wxString cmd;
-  cmd = wxT(":lisp-quiet ($load \"") + m_console->m_configuration->m_dirStructure.DataDir() +
-    wxT("/wxmathml.lisp\")\n");
+  wxMathML wxmathml;
+  SendMaxima(wxmathml.GetCmd());
+  wxString cmd;
 
 #if defined (__WXMAC__)
   wxString gnuplotbin(wxT("/Applications/Gnuplot.app/Contents/Resources/bin/gnuplot"));
