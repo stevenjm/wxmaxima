@@ -1975,6 +1975,40 @@ wxMathML::wxMathML()
 	"     (declare (ignore fnname))\n"
 	"     t))\n"
 	"\n"
+	";;; A function that loads bitmaps from files as a slideshow.\n"
+	";;; Todo: Replace this function by at least half-way-optimized LISP code.\n"
+	"  (progn\n"
+	"    (defprop $wxanimate_from_imgfiles t translated)\n"
+	"    (add2lnc \'$wxanimate_from_imgfiles $props)\n"
+	"    (defmtrfun ($wxanimate_from_imgfiles $any mdefine t nil)\n"
+	"      ($x)\n"
+	"      (declare (special $x))\n"
+	"      (progn\n"
+	"	(simplify (mfunction-call $printf t \'\"<mth><slide\"))\n"
+	"	(cond\n"
+	"	 ((is-boole-check (trd-msymeval $wxanimate_autoplay \'$wxanimate_autoplay))\n"
+	"	  (simplify (mfunction-call $printf t \'\" running=\\\"false\\\"\"))))\n"
+	"	(cond\n"
+	"	 ((like\n"
+	"	   (simplify\n"
+	"	    `((mfactorial)\n"
+	"	      ,(trd-msymeval $wxanimate_framerate \'$wxanimate_framerate)))\n"
+	"	   \'$wxanimate_framerate)\n"
+	"	  (simplify\n"
+	"	   (mfunction-call $printf t \'\" fr=\\\"~d\\\"\"\n"
+	"			   (trd-msymeval $wxanimate_framerate\n"
+	"					 \'$wxanimate_framerate)))))\n"
+	"	(simplify (mfunction-call $printf t \'\">\"))\n"
+	"	(do (($i)\n"
+	"	     (mdo (cdr $x) (cdr mdo)))\n"
+	"	    ((null mdo) \'$done)\n"
+	"	    (declare (special $i))\n"
+	"	    (setq $i (car mdo))\n"
+	"	    (simplify (mfunction-call $printf t \'\"~a;\" $i)))\n"
+	"	(simplify (mfunction-call $printf t \'\"</slide></mth>\")))\n"
+	"      ))\n"
+	"\n"
+	"\n"
 	"  (when ($file_search \"wxmaxima-init\")\n"
 	"    ($load \"wxmaxima-init\"))\n"
 	"\n"
@@ -2023,40 +2057,6 @@ wxMathML::wxMathML()
 	"	     (t\n"
 	"	      (merror \"Maxima bug: Unknown file type ~M\" type)))\n"
 	"       searched-for)))\n"
-	"\n"
-	";;; A function that loads bitmaps from files as a slideshow.\n"
-	";;; Todo: Replace this function by at least half-way-optimized LISP code.\n"
-	"  (progn\n"
-	"    (defprop $wxanimate_from_imgfiles t translated)\n"
-	"    (add2lnc \'$wxanimate_from_imgfiles $props)\n"
-	"    (defmtrfun ($wxanimate_from_imgfiles $any mdefine t nil)\n"
-	"      ($x)\n"
-	"      (declare (special $x))\n"
-	"      (progn\n"
-	"	(simplify (mfunction-call $printf t \'\"<mth><slide\"))\n"
-	"	(cond\n"
-	"	 ((is-boole-check (trd-msymeval $wxanimate_autoplay \'$wxanimate_autoplay))\n"
-	"	  (simplify (mfunction-call $printf t \'\" running=\\\"false\\\"\"))))\n"
-	"	(cond\n"
-	"	 ((like\n"
-	"	   (simplify\n"
-	"	    `((mfactorial)\n"
-	"	      ,(trd-msymeval $wxanimate_framerate \'$wxanimate_framerate)))\n"
-	"	   \'$wxanimate_framerate)\n"
-	"	  (simplify\n"
-	"	   (mfunction-call $printf t \'\" fr=\\\"~d\\\"\"\n"
-	"			   (trd-msymeval $wxanimate_framerate\n"
-	"					 \'$wxanimate_framerate)))))\n"
-	"	(simplify (mfunction-call $printf t \'\">\"))\n"
-	"	(do (($i)\n"
-	"	     (mdo (cdr $x) (cdr mdo)))\n"
-	"	    ((null mdo) \'$done)\n"
-	"	    (declare (special $i))\n"
-	"	    (setq $i (car mdo))\n"
-	"	    (simplify (mfunction-call $printf t \'\"~a;\" $i)))\n"
-	"	(simplify (mfunction-call $printf t \'\"</slide></mth>\")))\n"
-	"      ))\n"
-	"\n"
 	"  ;; Publish all new global variables maxima might contain to wxMaxima\'s\n"
 	"  ;; autocompletion feature.\n"
 	"  (wxPrint_autoompletesymbols)\n"
@@ -2076,23 +2076,36 @@ wxString wxMathML::GetCmd()
     wxString lineWithoutComments;
 
     bool stringIs = false;
+    wxChar lastChar=wxT(' ');
     wxString::iterator ch = line.begin();
     while (ch < line.end())
     {
-      if (*ch == wxT('\\'))
-      {
-        lineWithoutComments += *ch;
-        ch++;
-      }
+      // Remove formatting spaces
+      if(((lastChar == ' ') && (*ch == ' ')) && (!stringIs))
+	  ch++;
       else
-      {
-        if (*ch == wxT('\"'))
-          stringIs = !stringIs;
-        if ((*ch == wxT(';')) && (!stringIs))
-          break;
-      }
-      lineWithoutComments += *ch;
-      ch++;
+	{
+	  // Handle backslashes that might escape double quotes
+	  if (*ch == wxT('\\'))
+	    {
+	      lineWithoutComments += *ch;
+	      lastChar = *ch;
+	      ch++;
+	    }
+	  else
+	    {
+	      // Handle strings
+	      if (*ch == wxT('\"'))
+		stringIs = !stringIs;
+
+	      // Handle comments
+	      if ((*ch == wxT(';')) && (!stringIs))
+		break;
+	    }
+	  lineWithoutComments += *ch;
+	  lastChar = *ch;
+	  ch++;
+	}
     }
     cmd += lineWithoutComments + " ";
   }
