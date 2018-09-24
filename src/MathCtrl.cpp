@@ -952,7 +952,7 @@ void MathCtrl::ResetInputPrompts()
 void MathCtrl::NumberSections()
 {
   int s, sub, subsub, h5, h6, i;
-  s = sub = subsub = i = 0;
+  s = sub = subsub = i = h5 = h6 = 0;
   if (m_tree)
     m_tree->Number(s, sub, subsub, h5, h6, i);
 }
