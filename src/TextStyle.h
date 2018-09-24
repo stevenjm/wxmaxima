@@ -87,6 +87,6 @@ enum TextStyle
 };
 
 //! The number of entries TextStyle is long
-#define STYLE_NUM 34
+#define STYLE_NUM (TS_CODE_ENDOFLINE-TS_DEFAULT+1)
 
 #endif // TEXTSTYLE_H
