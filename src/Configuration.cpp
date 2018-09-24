@@ -581,7 +581,7 @@ void Configuration::ReadStyle()
   m_styles[TS_HEADING5].bold = true;
   m_styles[TS_HEADING5].italic = false;
   m_styles[TS_HEADING5].underlined = false;
-  m_styles[TS_HEADING5].fontSize = 14;
+  m_styles[TS_HEADING5].fontSize = 15;
 #ifdef __WXOSX_MAC__
   m_styles[TS_HEADING5].font = "Monaco";
 #endif
@@ -596,7 +596,7 @@ void Configuration::ReadStyle()
   m_styles[TS_SUBSUBSECTION].bold = true;
   m_styles[TS_SUBSUBSECTION].italic = false;
   m_styles[TS_SUBSUBSECTION].underlined = false;
-  m_styles[TS_SUBSUBSECTION].fontSize = 14;
+  m_styles[TS_SUBSUBSECTION].fontSize = 16;
 #ifdef __WXOSX_MAC__
   m_styles[TS_SUBSUBSECTION].font = "Monaco";
 #endif
