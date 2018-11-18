@@ -28,6 +28,7 @@
  */
 
 #include "ErrorRedirector.h"
+#include <iostream>
 
 ErrorRedirector::ErrorRedirector(wxLog *logger)
 {
