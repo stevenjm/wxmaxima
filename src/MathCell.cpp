@@ -77,7 +77,7 @@ MathCell::MathCell(MathCell *group, Configuration **config)
   m_textStyle = TS_VARIABLE;
   m_SuppressMultiplicationDot = false;
   m_imageBorderWidth = 0;
-  m_currentPoint = wxPoint(-1, -1);
+  SetCurrentPoint(wxPoint(-1, -1));
   m_toolTip = (*m_configuration)->GetDefaultMathCellToolTip();
   m_fontSize = (*m_configuration)->GetMathFontSize();
 }
@@ -329,7 +329,7 @@ int MathCell::GetLineWidth()
  */
 void MathCell::Draw(wxPoint point)
 {
-  m_currentPoint = point;
+  SetCurrentPoint(point);
 
   // Tell the screen reader that this cell's contents might have changed.
 
@@ -418,9 +418,8 @@ bool MathCell::DrawThisCell(wxPoint point)
   if((point.x < 0) || (point.y < 0))
     return false;
 
-  if((m_currentPoint.x <= 0) || (m_currentPoint.y <= 0))
-    m_currentPoint = point;
-  
+  SetCurrentPoint(point);
+
   // If a cell is broken into lines its individual parts are displayed but
   // not the cell itself (example: Denominator and Numerator are displayed
   // but not the horizontal line with denominator above and numerator below.
