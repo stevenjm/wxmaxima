@@ -418,6 +418,9 @@ bool MathCell::DrawThisCell(wxPoint point)
   if((point.x < 0) || (point.y < 0))
     return false;
 
+  if((m_currentPoint.x <= 0) || (m_currentPoint.y <= 0))
+    m_currentPoint = point;
+  
   // If a cell is broken into lines its individual parts are displayed but
   // not the cell itself (example: Denominator and Numerator are displayed
   // but not the horizontal line with denominator above and numerator below.
@@ -454,7 +457,7 @@ wxRect MathCell::GetRect(bool all)
 
 bool MathCell::InUpdateRegion(const wxRect &rect)
 {
-  if (m_clipToDrawRegion) return true;
+  if (!m_clipToDrawRegion) return true;
   if (rect.GetLeft() > m_updateRegion.GetRight()) return false;
   if (rect.GetRight() < m_updateRegion.GetLeft()) return false;
   if (rect.GetBottom() < m_updateRegion.GetTop()) return false;
