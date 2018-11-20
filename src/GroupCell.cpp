@@ -987,7 +987,7 @@ void GroupCell::Draw(wxPoint point)
               drop = tmp->m_nextToDraw->GetMaxDrop();
             }
           else
-            if(tmp->DrawThisCell(in)) in.x += (tmp->GetWidth());
+            in.x += tmp->GetWidth();
 
           tmp = tmp->m_nextToDraw;
         }
