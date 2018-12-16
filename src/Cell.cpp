@@ -460,7 +460,8 @@ bool Cell::InUpdateRegion(const wxRect &rect)
   if ((*m_configuration)->Printing())
     return true;
   
-  return rect.Intersects((*m_configuration)->GetUpdateRegion());
+  return rect.Intersects((*m_configuration)->GetUpdateRegion()) ||
+    (*m_configuration)->GetUpdateRegion().Contains(rect);
 }
 
 void Cell::DrawBoundingBox(wxDC &dc, bool all)

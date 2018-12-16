@@ -369,10 +369,8 @@ void Worksheet::OnPaint(wxPaintEvent &WXUNUSED(event))
   updateRegion.SetBottom(bottom);
   m_configuration->SetUpdateRegion(updateRegion);
 
-  if (sz.x == 0)
-    return;
-  if (sz.y == 0)
-    return;
+  if (sz.x == 0) sz.x = 1;
+  if (sz.y == 0) sz.y = 1;
 
   // Test if m_memory is NULL or of the wrong size
   #ifdef __WXMAC__
@@ -535,8 +533,8 @@ void Worksheet::OnPaint(wxPaintEvent &WXUNUSED(event))
 
   // Blit the memory image to the window
   dcm.SetDeviceOrigin(0, 0);
-  dc.Blit(0, rect.GetTop(), sz.x, rect.GetBottom() - rect.GetTop() + 1, &dcm,
-          0, rect.GetTop());
+  dc.Blit(rect.GetLeft(), rect.GetTop(), rect.GetWidth(), rect.GetHeight(), &dcm,
+          rect.GetLeft(), rect.GetTop());
 
   m_configuration->SetContext(*m_dc);
   m_configuration->UnsetAntialiassingDC();
