@@ -431,6 +431,11 @@ bool Cell::DrawThisCell(wxPoint point)
   if(m_isBrokenIntoLines)
     return false;
 
+  // We need to redraw group cell brackets on cursor movements.
+  // TODO: Is this the right method to make this happen?
+  if(!InUpdateRegion())
+    return false;
+
   return true;
 }
 

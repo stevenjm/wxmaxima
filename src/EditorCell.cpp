@@ -753,9 +753,9 @@ The order this cell is drawn is:
 void EditorCell::Draw(wxPoint point1)
 {
   Cell::Draw(point1);
-  if ((!m_isHidden) && (DrawThisCell(point1)))
+  std::cerr<<point1.x<<","<<point1.y<<"\n";
+//  if ((!m_isHidden) && (DrawThisCell(point1)))
   {
-    // Clear the 
     wxRect rect = GetRect();
     int y = rect.GetY();
     

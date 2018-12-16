@@ -369,8 +369,10 @@ void Worksheet::OnPaint(wxPaintEvent &WXUNUSED(event))
   updateRegion.SetBottom(bottom);
   m_configuration->SetUpdateRegion(updateRegion);
 
-  if (sz.x == 0) sz.x = 1;
-  if (sz.y == 0) sz.y = 1;
+  if (sz.x == 0)
+    return;
+  if (sz.y == 0)
+    return;
 
   // Test if m_memory is NULL or of the wrong size
   #ifdef __WXMAC__
@@ -455,7 +457,7 @@ void Worksheet::OnPaint(wxPaintEvent &WXUNUSED(event))
 
     while (tmp != NULL)
     {
-      wxRect rect = tmp->GetRect();
+      wxRect cellRect = tmp->GetRect();
 
       int width;
       int height;
@@ -468,12 +470,12 @@ void Worksheet::OnPaint(wxPaintEvent &WXUNUSED(event))
                                         upperLeftScreenCorner + wxPoint(width,height)));
       (m_configuration)->SetWorksheetPosition(GetPosition());
       // Clear the image cache of all cells above or below the viewport.
-      if ((rect.GetTop() >= bottom) || (rect.GetBottom() <= top))
+      if ((cellRect.GetTop() >= bottom) || (cellRect.GetBottom() <= top))
       {
         // Only actually clear the image cache if there is a screen's height between
         // us and the image's position: Else the chance is too high that we will
         // very soon have to generated a scaled image again.
-        if ((rect.GetBottom() <= m_lastBottom - height) || (rect.GetTop() >= m_lastTop + height))
+        if ((cellRect.GetBottom() <= m_lastBottom - height) || (cellRect.GetTop() >= m_lastTop + height))
         {
           if (tmp->GetOutput())
             tmp->GetOutput()->ClearCacheList();
@@ -485,8 +487,8 @@ void Worksheet::OnPaint(wxPaintEvent &WXUNUSED(event))
       {
         tmp->InEvaluationQueue(m_evaluationQueue.IsInQueue(tmp));
         tmp->LastInEvaluationQueue(m_evaluationQueue.GetCell() == tmp);
-        tmp->Draw(point);
       }
+      tmp->Draw(point);
       tmp = dynamic_cast<GroupCell *>(tmp->m_next);
       if (tmp != NULL)
       {

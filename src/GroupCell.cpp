@@ -918,12 +918,17 @@ GroupCell *GroupCell::UpdateYPosition()
 void GroupCell::Draw(wxPoint point)
 {
   Cell::Draw(point);
+
+  Configuration *configuration = (*m_configuration);
+
+  if (configuration->ShowBrackets())
+    DrawBracket();
+
   if (DrawThisCell(point))
   {
     if (m_width == -1 || m_height == -1)
       return;
     
-    Configuration *configuration = (*m_configuration);
     wxDC *dc = configuration->GetDC();
     // draw a thick line for 'page break'
     // and return
@@ -939,9 +944,6 @@ void GroupCell::Draw(wxPoint point)
     
     wxRect rect = GetRect(false);
     
-    if (configuration->ShowBrackets())
-      DrawBracket();
-
     if(configuration->GetIndent() < rect.GetRight())
     {
       if(rect.GetLeft() <= configuration->GetCellBracketWidth())
