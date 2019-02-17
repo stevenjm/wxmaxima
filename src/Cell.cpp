@@ -1067,8 +1067,7 @@ void Cell::SetPen(double lineWidth)
                                           lineWidth * configuration->GetDefaultLineWidth(), wxPENSTYLE_SOLID));
 
   dc->SetPen(pen);
-  if(configuration->GetAntialiassingDC() != dc)
-    configuration->GetAntialiassingDC()->SetPen(pen);
+  configuration->GetAntialiassingDC()->SetPen(pen);
 }
 
 /***

@@ -26,6 +26,7 @@
 #include <wx/config.h>
 #include <wx/display.h>
 #include <wx/fontenum.h>
+#include <wx/graphics.h>
 
 #include "TextStyle.h"
 
@@ -117,7 +118,7 @@ public:
     m_antialiassingDC = NULL;
   }
 
-  void SetAntialiassingDC(wxDC &antialiassingDC)
+  void SetAntialiassingDC(wxGraphicsContext &antialiassingDC)
     {m_antialiassingDC = &antialiassingDC;}
 
   void UnsetAntialiassingDC()
@@ -200,12 +201,9 @@ public:
   { return m_dc; }
 
   //! Get a drawing context suitable for size calculations
-  wxDC *GetAntialiassingDC()
+  wxGraphicsContext *GetAntialiassingDC()
     {
-      if ((m_antialiassingDC != NULL) && m_antiAliasLines)
-        return m_antialiassingDC;
-      else
-        return m_dc;
+      return m_antialiassingDC;
     }
 
   void SetBounds(int top, int bottom)
@@ -611,11 +609,6 @@ public:
   wxString MathJaXURL(){ return m_mathJaxURL;}
   //! Returns the URL MathJaX can be found at.
   void MathJaXURL(wxString url){wxConfig::Get()->Write(wxT("mathJaxURL"), m_mathJaxURL = url);}
-  bool AntiAliasLines(){return m_antiAliasLines;}
-  void AntiAliasLines(bool antiAlias)
-    {
-      wxConfig::Get()->Write(wxT("antiAliasLines"), m_antiAliasLines = antiAlias );
-    }
 
   bool CopyBitmap(){return m_copyBitmap;}
   void CopyBitmap(bool copyBitmap)
@@ -787,10 +780,9 @@ private:
   //! The width of input and output labels [in chars]
   int m_labelWidth;
   int m_indent;
-  bool m_antiAliasLines;
   double m_zoomFactor;
   wxDC *m_dc;
-  wxDC *m_antialiassingDC;
+  wxGraphicsContext *m_antialiassingDC;
   int m_top, m_bottom;
   wxString m_fontName;
   int m_defaultFontSize, m_mathFontSize;

@@ -69,7 +69,6 @@ Configuration::Configuration(wxDC &dc) : m_dc(&dc)
     m_maximaLocation = Dirstructure::Get()->MaximaDefaultLocation();
   m_indent = -1;
   m_autoSubscript = 1;
-  m_antiAliasLines = true;
   ReadConfig();
   m_showCodeCells = true;
   m_defaultToolTip = wxEmptyString;
@@ -148,7 +147,6 @@ void Configuration::ReadConfig()
   config->Read(wxT("useUnicodeMaths"), &m_useUnicodeMaths);
   config->Read(wxT("mathJaxURL"), &m_mathJaxURL);
   config->Read(wxT("autosubscript"), &m_autoSubscript);
-  config->Read(wxT("antiAliasLines"), &m_antiAliasLines);
   config->Read(wxT("indentMaths"), &m_indentMaths);
   config->Read(wxT("abortOnError"),&m_abortOnError);
 

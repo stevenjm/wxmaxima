@@ -1097,7 +1097,7 @@ void GroupCell::DrawBracket()
     drawBracket = true;
 
   wxDC *dc = configuration->GetDC();
-  wxDC *adc = configuration->GetAntialiassingDC();
+  wxGraphicsContext *adc = configuration->GetAntialiassingDC();
 
   int selectionStart_px = -1;
   if((m_cellPointers->m_selectionStart != NULL) &&

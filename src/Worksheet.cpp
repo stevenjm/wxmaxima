@@ -399,18 +399,18 @@ void Worksheet::OnPaint(wxPaintEvent &WXUNUSED(event))
   dcm.SetMapMode(wxMM_TEXT);
   dcm.SetBackgroundMode(wxTRANSPARENT);
 
-  wxGCDC antiAliassingDC(dcm);
+  wxGraphicsContext *antiAliassingDC = wxGraphicsContext::Create(dcm);
 
   #if defined(__WXGTK__) && !defined(__WXGTK3__)
   // Seems like depending on the wxGTK version the antialiassing DC doesn't inherit the
   // scrolling info from the normal DC.
   //
   // On wxMAC it does, though, and preparing it, too, scrolls it twice.
-  DoPrepareDC(antiAliassingDC);
+//  DoPrepareDC(*antiAliassingDC);
   #endif
 
   m_configuration->SetContext(dcm);
-  m_configuration->SetAntialiassingDC(antiAliassingDC);
+  m_configuration->SetAntialiassingDC(*antiAliassingDC);
   m_configuration->SetBounds(top, bottom);
 
   // Draw content
