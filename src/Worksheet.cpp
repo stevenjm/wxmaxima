@@ -4132,7 +4132,11 @@ void Worksheet::OnChar(wxKeyEvent &event)
   }
 
   if (GetActiveCell() != NULL)
+  {
+    if(event.GetKeyCode() != WXK_ESCAPE)
+      Autocomplete(AutoComplete::esccommand);
     OnCharInActive(event);
+  }
   else
     OnCharNoActive(event);
 }
@@ -8092,8 +8096,13 @@ bool Worksheet::Autocomplete(AutoComplete::autoCompletionType type)
   if (editor == NULL)
     return false;
 
-  editor->SelectWordUnderCaret(false, false, true);
-  wxString partial = editor->GetSelectionString();
+  
+  wxString partial;
+  if(type != AutoComplete::esccommand)
+  {
+    editor->SelectWordUnderCaret(false, false, true);
+    partial = editor->GetSelectionString();
+  }
 
   if (type == AutoComplete::command)
   {
@@ -8238,7 +8247,7 @@ bool Worksheet::Autocomplete(AutoComplete::autoCompletionType type)
   }
 
   /// If there is only one completion, use it
-  if (m_completions.GetCount() == 1)
+  if ((m_completions.GetCount() == 1) && (type != AutoComplete::esccommand))
   {
     int start, end;
     editor->GetSelection(&start, &end);
