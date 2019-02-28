@@ -48,13 +48,12 @@ void AutocompletePopup::UpdateResults()
       m_editor->ReplaceSelection(
         m_editor->GetSelectionString(),
         m_completions[0]
-        );    
+        );
       m_editor->ClearSelection();
     }
     else
-    {
       m_editor->InsertEscCommand(m_completions[0]);
-    }
+
     m_parent->GetParent()->Refresh();
     if (!m_editor->IsActive())
       m_editor->ActivateCursor();
@@ -328,7 +327,10 @@ AutocompletePopup::AutocompletePopup(
   m_editor = editor;
   m_type = type;
   m_length = 0;
-  
+
+  if(m_type != AutoComplete::esccommand)
+    m_partial = m_editor->GetSelectionString();
+      
   Connect(wxEVT_CHAR,
           wxKeyEventHandler(AutocompletePopup::OnChar),
           NULL, this);
@@ -342,7 +344,7 @@ void AutocompletePopup::OnChar(wxKeyEvent &event)
   wxChar key = event.GetUnicodeKey();
   if (
     ((m_type == AutoComplete::esccommand) && wxIsprint(key)) ||
-    ((wxIsalpha(key)) || (key == wxT('_')) || (key == wxT('\"')) ||
+    ((wxIsalnum(key)) || (key == wxT('_')) || (key == wxT('\"')) ||
      (
        (
           (m_type == AutoComplete::generalfile) ||
@@ -359,7 +361,7 @@ void AutocompletePopup::OnChar(wxKeyEvent &event)
     if(m_type != AutoComplete::esccommand)
       m_editor->ReplaceSelection(
         oldString,
-        oldString + wxString(key),
+        m_partial,
         true
         );
     UpdateResults();
