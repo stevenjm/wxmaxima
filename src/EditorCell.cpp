@@ -3249,7 +3249,7 @@ void EditorCell::InsertText(wxString text)
   if (GetType() == MC_TYPE_INPUT)
     FindMatchingParens();
 
-  m_width = m_height = m_maxDrop = m_center = -1;
+//  m_width = m_height = m_maxDrop = m_center = -1;
   StyleText();
 }
 
