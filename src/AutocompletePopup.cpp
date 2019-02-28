@@ -53,7 +53,7 @@ void AutocompletePopup::UpdateResults()
     }
     else
     {
-      m_editor->InsertEscCommand(m_partial);
+      m_editor->InsertEscCommand(m_completions[0]);
     }
     m_parent->GetParent()->Refresh();
     if (!m_editor->IsActive())

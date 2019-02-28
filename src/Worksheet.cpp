@@ -3985,12 +3985,7 @@ void Worksheet::OnCharNoActive(wxKeyEvent &event)
     case WXK_ESCAPE:
       OpenHCaret(wxEmptyString);
       if (GetActiveCell() != NULL)
-      {
-        GetActiveCell()->ProcessEvent(event);
-        GroupCell *parent = dynamic_cast<GroupCell*>(GetActiveCell()->GetGroup());
-        parent->InputHeightChanged();
-        RequestRedraw();
-      }
+        Autocomplete(AutoComplete::esccommand);
       break;
 
       // keycodes which open hCaret with initial content
@@ -4134,8 +4129,9 @@ void Worksheet::OnChar(wxKeyEvent &event)
   if (GetActiveCell() != NULL)
   {
     if(event.GetKeyCode() != WXK_ESCAPE)
+      OnCharInActive(event);
+    else
       Autocomplete(AutoComplete::esccommand);
-    OnCharInActive(event);
   }
   else
     OnCharNoActive(event);
