@@ -340,14 +340,17 @@ AutocompletePopup::AutocompletePopup(
 void AutocompletePopup::OnChar(wxKeyEvent &event)
 {
   wxChar key = event.GetUnicodeKey();
-  if ((wxIsalpha(key)) || (key == wxT('_')) || (key == wxT('\"')) ||
-      (
-        (
+  if (
+    ((m_type == AutoComplete::esccommand) && wxIsprint(key)) ||
+    ((wxIsalpha(key)) || (key == wxT('_')) || (key == wxT('\"')) ||
+     (
+       (
           (m_type == AutoComplete::generalfile) ||
           (m_type == AutoComplete::loadfile) ||
           (m_type == AutoComplete::demofile)
           ) &&
         (key == wxT('/'))
+               )
         )
     )
   {

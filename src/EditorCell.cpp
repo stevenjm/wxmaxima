@@ -3250,7 +3250,7 @@ void EditorCell::InsertText(wxString text)
     FindMatchingParens();
 
   m_width = m_height = m_maxDrop = m_center = -1;
-
+  StyleText();
 }
 
 void EditorCell::PasteFromClipboard(bool primary)
