@@ -54,6 +54,7 @@ Cell::Cell(Cell *group, Configuration **config)
 #endif
 {
   m_cellsInGroup = -1;
+  SetGroup(group);
   m_textStyle = TS_DEFAULT;
   m_toolTip = wxEmptyString;
   m_toolTip = wxEmptyString;
@@ -194,11 +195,30 @@ void Cell::SetGroupList(Cell *parent)
   Cell *tmp = this;
   while (tmp != NULL)
   {
+    parent->m_cellsInGroup ++;
     tmp->SetGroup(parent);
     tmp->SetParent(this);
     tmp = tmp->m_next;
   }
 }
+
+void Cell::SetGroup(Cell *group)
+{
+  m_group = group;
+  if(group != NULL)
+  {
+    wxASSERT (group->GetType() == MC_TYPE_GROUP);
+    group->m_cellsInGroup++;
+  }
+  
+  std::list<Cell*> cellList = GetInnerCells();
+  for (std::list<Cell *>::iterator it = cellList.begin(); it != cellList.end(); ++it)
+  {
+    if(*it != NULL)
+      (*it)->SetGroupList(group);
+  }
+}
+
 
 /***
  * Append new cell to the end of this list.

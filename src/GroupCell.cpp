@@ -245,6 +245,8 @@ void GroupCell::SetCellStyle(int style)
 */
 void GroupCell::SetGroup(Cell *parent)
 {
+  m_cellsInGroup = 1;
+  
   //m_group = parent;
   if (m_inputLabel != NULL)
     m_inputLabel->SetGroupList(parent);
@@ -2102,6 +2104,7 @@ void GroupCell::UnBreakUpCells(Cell *cell)
     showLength = 500;    
   }
 
+  std::cerr<< m_cellsInGroup<<" of " << showLength <<"\n";
   // Reduce the number of steps involved in layouting big equations
  if(m_cellsInGroup > showLength)
  {

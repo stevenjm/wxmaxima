@@ -734,18 +734,19 @@ class Cell
     class has to take care that the subCell's SetGroup is called when
     the cell's SetGroup is called.
    */
-  virtual void SetGroup(Cell *group)
-    { m_group = group; wxASSERT (group != NULL); wxASSERT (group->GetType() == MC_TYPE_GROUP); }
   
   virtual void SetParent(Cell *parent)
     { m_parent = parent; }
 
-  /*! Define which Cell is the parent of this list of cells
+  /*! Define which Cell is the GroupCell this list of cells belongs to
 
     Also automatically sets this cell as the "parent" of all cells of the list.
    */
   void SetGroupList(Cell *parent);
 
+  //! Define which Sell is the GroupCell this list of cells belongs to
+  void SetGroup(Cell *parent);
+  
   virtual void SetStyle(TextStyle style)
   {
     m_textStyle = style;
