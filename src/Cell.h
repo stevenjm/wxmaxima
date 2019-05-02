@@ -136,9 +136,6 @@ class Cell
   virtual wxAccStatus GetRole (int childId, wxAccRole *role);
 #endif
   
-  //! The number of cells the current group contains (-1, if no GroupCell)
-  int m_cellsInGroup;
-
   wxString m_toolTip;
 
   /*! Returns the ToolTip this cell provides.
@@ -149,6 +146,9 @@ class Cell
 
   //! Delete this list of cells.
   virtual ~Cell();
+
+  //! How many cells does this cell contain?
+  int CellsInListRecursive();
 
   /*! If the cell is moved to the undo buffer this function drops pointers to it
   
@@ -745,7 +745,7 @@ class Cell
   void SetGroupList(Cell *parent);
 
   //! Define which Sell is the GroupCell this list of cells belongs to
-  void SetGroup(Cell *parent);
+  virtual void SetGroup(Cell *parent);
   
   virtual void SetStyle(TextStyle style)
   {
