@@ -36,7 +36,23 @@ Variablespane::Variablespane(wxWindow *parent, wxWindowID id) : wxGrid(parent, i
   attr1->SetRenderer(new wxGridCellAutoWrapStringRenderer);
   SetColAttr(1,attr1);
   SetColLabelValue(1,_("Contents"));
+  Connect(wxEVT_GRID_CELL_CHANGED,
+          wxGridEventHandler(Variablespane::OnTextChange),
+          NULL, this);
   HideRowLabels();
+}
+
+void Variablespane::OnTextChange(wxGridEvent &event)
+{
+  if((GetNumberRows() == 0) || (GetCellValue(GetNumberRows()-1,0) != wxEmptyString))
+    AppendRows();
+  else
+    for(int i = 0; i < GetNumberRows() - 1; i++)
+      if(GetCellValue(i,0) == wxEmptyString)
+        DeleteRows(i);
+
+  //while((GetNumberRows() > 1) && (GetCellValue(GetNumberRows()-2,0) == wxEmptyString))
+  //    DeleteRows(GetNumberRows()-1);
 }
 
 Variablespane::~Variablespane()

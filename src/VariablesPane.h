@@ -32,6 +32,8 @@ class Variablespane : public wxGrid
 {
 public:
   Variablespane(wxWindow *parent, wxWindowID id = wxID_ANY);
+  void OnTextChange(wxGridEvent &WXUNUSED(event));
+
   ~Variablespane();
 };
 
