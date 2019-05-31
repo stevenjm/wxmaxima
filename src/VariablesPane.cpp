@@ -28,7 +28,6 @@ Variablespane::Variablespane(wxWindow *parent, wxWindowID id) : wxGrid(parent, i
   CreateGrid(1,2);
   wxGridCellAttr *attr0, *attr1;
   attr0 = new wxGridCellAttr;
-  attr0->SetRenderer(new wxGridCellAutoWrapStringRenderer);
   SetColAttr(0,attr0);
   SetColLabelValue(0,_("Variable"));
   attr1 = new wxGridCellAttr;
@@ -52,6 +51,8 @@ void Variablespane::OnTextChange(wxGridEvent &event)
     for(int i = 0; i < GetNumberRows() - 1; i++)
       if(GetCellValue(i,0) == wxEmptyString)
         DeleteRows(i);
+  wxMenuEvent *VarReadEvent = new wxMenuEvent(wxEVT_MENU, varID_newVar);
+  GetParent()->GetEventHandler()->QueueEvent(VarReadEvent);
 }
 
 void Variablespane::VariableValue(wxString var, wxString val)
@@ -84,11 +85,23 @@ wxString Variablespane::EscapeVarname(wxString var)
 {
   var.Replace("\\","\\\\");
   var.Replace("+","\\+");
+  var.Replace("#","\\+");
+  var.Replace("'","\\+");
+  var.Replace("!","\\+");
   var.Replace("-","\\-");
   var.Replace("*","\\*");
   var.Replace("/","\\/");
   var.Replace("^","\\^");
   var.Replace(",","\\,");
+  var.Replace("<","\\<");
+  var.Replace(">","\\>");
+  var.Replace("@","\\@");
+  var.Replace("!","\\!");
+  var.Replace("~","\\~");
+  var.Replace("`","\\`");
+  var.Replace("?","\\?");
+  if(var.StartsWith("\\?"))
+    var = var.Right(var.Length()-1);
   if(!var.StartsWith(wxT("?")))
     var = "$" + var;
   return var;
@@ -105,6 +118,12 @@ bool Variablespane::IsValidVariable(wxString var)
   if(var==wxEmptyString)
     return false;
   if(var.Contains(":"))
+    return false;
+  if(var.Contains("\'"))
+    return false;
+  if(var.Contains("\""))
+    return false;
+  if(var.Contains("\\"))
     return false;
   if(var.Contains(";"))
     return false;

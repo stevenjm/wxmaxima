@@ -32,6 +32,11 @@
 class Variablespane : public wxGrid
 {
 public:
+  enum VarIds
+  {
+    varID_newVar = wxID_HIGHEST + 3000,
+  };
+
   Variablespane(wxWindow *parent, wxWindowID id = wxID_ANY);
   void OnTextChange(wxGridEvent &event);
   bool IsValidVariable(wxString var);

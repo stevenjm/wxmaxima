@@ -392,7 +392,8 @@ protected:
     \todo Inform maxima about the new default plot window size.
   */
   void EditInputMenu(wxCommandEvent &event);
-
+  //! Trigger reading all variables from Maxima that are shown in the Variables sidebar
+  void VarReadEvent(wxCommandEvent &event);
   void EvaluateEvent(wxCommandEvent &event);       //
   void InsertMenu(wxCommandEvent &event);          //
   void PrintMenu(wxCommandEvent &event);

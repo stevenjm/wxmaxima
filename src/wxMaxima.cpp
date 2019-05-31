@@ -7716,6 +7716,15 @@ void wxMaxima::EditInputMenu(wxCommandEvent &WXUNUSED(event))
   m_worksheet->SetActiveCell(tmp);
 }
 
+void wxMaxima::VarReadEvent(wxCommandEvent &WXUNUSED(event))
+{
+  m_varNamesToQuery = m_variablesPane->GetEscapedVarnames();
+  if(m_worksheet->m_evaluationQueue.Empty())
+  {
+    QueryVariableValue();
+  }
+}
+
 //! Handle the evaluation event
 //
 // User tried to evaluate, find out what is the case
@@ -9020,6 +9029,7 @@ EVT_UPDATE_UI(menu_show_toolbar, wxMaxima::UpdateMenus)
                 EVT_END_PROCESS(gnuplot_process_id, wxMaxima::OnGnuplotClose)
                 EVT_MENU(Worksheet::popid_edit, wxMaxima::EditInputMenu)
                 EVT_MENU(menu_evaluate, wxMaxima::EvaluateEvent)
+                EVT_MENU(Variablespane::varID_newVar, wxMaxima::VarReadEvent)
                 EVT_MENU(menu_add_comment, wxMaxima::InsertMenu)
                 EVT_MENU(menu_add_section, wxMaxima::InsertMenu)
                 EVT_MENU(menu_add_subsection, wxMaxima::InsertMenu)
