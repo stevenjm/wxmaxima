@@ -1146,7 +1146,6 @@ void wxMaxima::BecomeLogTarget()
 void wxMaxima::KillMaxima(bool logMessage)
 {
   m_variablesPane->ResetValues();
-  std::cerr<<"NewPrompt\n";
   m_varNamesToQuery = m_variablesPane->GetEscapedVarnames();
   if((m_pid > 0) && (m_client == NULL))
     return;
@@ -1566,6 +1565,7 @@ void wxMaxima::ReadMath(wxString &data)
   int end;
   if ((end = FindTagEnd(data,mthend)) != wxNOT_FOUND)
   {
+    std::cerr<<"math\n";
     wxString o = data.Left(end + mthend.Length());
     data = data.Right(data.Length()-end-mthend.Length());
     o.Trim(true);
@@ -1625,6 +1625,7 @@ void wxMaxima::ReadVariables(wxString &data)
 
   if (end != wxNOT_FOUND)
   {
+    std::cerr<<"variables\n";
     wxLogMessage(_("Maxima sends a new set of auto-completible symbols."));
     wxXmlDocument xmldoc;
     wxString xml = data.Left( end + m_variablesSuffix.Length());
@@ -1724,21 +1725,24 @@ void wxMaxima::ReadVariables(wxString &data)
 
     // Remove the symbols from the data string
     data = data.Right(data.Length()-end-m_variablesSuffix.Length());
-  }
   // If maxima currently isn't busy we can ask for the value of a variable
-  if(m_worksheet->m_evaluationQueue.Empty())
-    QueryVariableValue();
+    StatusMaximaBusy(waiting);
+    if(m_worksheet->m_evaluationQueue.Empty())
+    {
+      QueryVariableValue();
+    }
+    else
+      TriggerEvaluation();
+  }
 }
 
 void wxMaxima::QueryVariableValue()
 {
-  std::cerr<<"Query"<<m_varNamesToQuery.GetCount()<<"\n";
   if(m_varNamesToQuery.GetCount() > 0)
   {
-    SendMaxima(wxT(":lisp-quiet (wx-query-variable ") +
+    SendMaxima(wxT(":lisp-quiet (wx-query-variable \'") +
                m_varNamesToQuery.Last()+wxT(")\n"));
     m_varNamesToQuery.RemoveAt(m_varNamesToQuery.GetCount()-1);
-    std::cerr<<"Query2"<<m_varNamesToQuery.GetCount()<<"\n";
   }
 }
 
@@ -1761,6 +1765,7 @@ void wxMaxima::ReadPrompt(wxString &data)
   if (end == wxNOT_FOUND)
     return;
 
+  std::cerr<<"prompt\n";
   m_bytesFromMaxima = 0;
   
   wxString o = data.SubString(m_promptPrefix.Length(), end - 1);
@@ -3059,6 +3064,7 @@ void wxMaxima::InterpretDataFromMaxima()
     if(newActiveCell != oldActiveCell)
       m_worksheet->m_cellPointers.SetWorkingGroup(newActiveCell);
   }
+  std::cerr<<"out=\""<<m_currentOutput<<"\"\n";
 }
 
 ///--------------------------------------------------------------------------------

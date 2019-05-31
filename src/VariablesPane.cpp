@@ -57,7 +57,7 @@ void Variablespane::OnTextChange(wxGridEvent &event)
 void Variablespane::VariableValue(wxString var, wxString val)
 {
   for(int i = 0; i < GetNumberRows(); i++)
-    if(GetCellValue(i,0) == var)
+    if(GetCellValue(i,0) == UnescapeVarname(var))
       SetCellValue(i,1,val);
 }
 
@@ -75,9 +75,7 @@ wxArrayString Variablespane::GetEscapedVarnames()
 
 wxString Variablespane::UnescapeVarname(wxString var)
 {
-  if(!var.StartsWith(wxT("?")))
-    var = "?" + var;
-  else
+  if(var.StartsWith(wxT("?")))
     var = var.Right(var.Length()-1);
   return var;
 }
@@ -98,6 +96,12 @@ wxString Variablespane::EscapeVarname(wxString var)
 
 bool Variablespane::IsValidVariable(wxString var)
 {
+  for (wxString::iterator it = var.begin(); it != var.end(); ++it)
+  {
+    if(!wxIsprint(*it))
+      return false;
+  }
+
   if(var==wxEmptyString)
     return false;
   if(var.Contains(":"))
