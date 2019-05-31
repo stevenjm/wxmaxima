@@ -1565,7 +1565,6 @@ void wxMaxima::ReadMath(wxString &data)
   int end;
   if ((end = FindTagEnd(data,mthend)) != wxNOT_FOUND)
   {
-    std::cerr<<"math\n";
     wxString o = data.Left(end + mthend.Length());
     data = data.Right(data.Length()-end-mthend.Length());
     o.Trim(true);
@@ -1625,7 +1624,6 @@ void wxMaxima::ReadVariables(wxString &data)
 
   if (end != wxNOT_FOUND)
   {
-    std::cerr<<"variables\n";
     wxLogMessage(_("Maxima sends a new set of auto-completible symbols."));
     wxXmlDocument xmldoc;
     wxString xml = data.Left( end + m_variablesSuffix.Length());
@@ -1765,7 +1763,6 @@ void wxMaxima::ReadPrompt(wxString &data)
   if (end == wxNOT_FOUND)
     return;
 
-  std::cerr<<"prompt\n";
   m_bytesFromMaxima = 0;
   
   wxString o = data.SubString(m_promptPrefix.Length(), end - 1);
@@ -3064,7 +3061,6 @@ void wxMaxima::InterpretDataFromMaxima()
     if(newActiveCell != oldActiveCell)
       m_worksheet->m_cellPointers.SetWorkingGroup(newActiveCell);
   }
-  std::cerr<<"out=\""<<m_currentOutput<<"\"\n";
 }
 
 ///--------------------------------------------------------------------------------
@@ -8055,7 +8051,7 @@ void wxMaxima::TriggerEvaluation()
     // The cell from the last evaluation might still be shown in it's "evaluating" state
     // so let's refresh the console to update the display of this.
     m_worksheet->RequestRedraw();
-        
+
     // If the window isn't active we can inform the user that maxima in the meantime
     // has finished working.
     if((m_worksheet->m_configuration->NotifyIfIdle()) && (m_worksheet->GetTree() != NULL))
