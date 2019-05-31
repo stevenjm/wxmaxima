@@ -24,6 +24,7 @@
 
 #include <wx/wx.h>
 #include <wx/grid.h>
+#include <wx/arrstr.h>
 
 /*! A "variables" sidepane
 
@@ -32,8 +33,14 @@ class Variablespane : public wxGrid
 {
 public:
   Variablespane(wxWindow *parent, wxWindowID id = wxID_ANY);
-  void OnTextChange(wxGridEvent &WXUNUSED(event));
-
+  void OnTextChange(wxGridEvent &event);
+  bool IsValidVariable(wxString var);
+  wxArrayString GetEscapedVarnames();
+  void ResetValues();
+  wxString EscapeVarname(wxString var);
+  wxString UnescapeVarname(wxString var);
+  //! Tell the variables pane about a variable value
+  void VariableValue(wxString var, wxString val);
   ~Variablespane();
 };
 

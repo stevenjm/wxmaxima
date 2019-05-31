@@ -189,7 +189,12 @@ public:
   void LoadImage(wxString file)
   { m_worksheet->OpenHCaret(file, GC_TYPE_IMAGE); }
 
+  //! Query the value of a new maxima variable
+  void QueryVariableValue();
+
 private:
+  //! The variable names to query for the variables pane
+  wxArrayString m_varNamesToQuery;
   bool m_isLogTarget;
   //! Is true if opening the file from the command line failed before updating the statusbar.
   bool m_openInitialFileError;

@@ -1145,6 +1145,9 @@ void wxMaxima::BecomeLogTarget()
 
 void wxMaxima::KillMaxima(bool logMessage)
 {
+  m_variablesPane->ResetValues();
+  std::cerr<<"NewPrompt\n";
+  m_varNamesToQuery = m_variablesPane->GetEscapedVarnames();
   if((m_pid > 0) && (m_client == NULL))
     return;
 
@@ -1711,6 +1714,7 @@ void wxMaxima::ReadVariables(wxString &data)
               m_recentPackages.AddDocument(value);
               wxLogMessage(wxString::Format(_("Maxima has loaded the file %s."),value));
             }
+            m_variablesPane->VariableValue(name, value);
          }
           var = var->GetNext();
         }
@@ -1720,6 +1724,21 @@ void wxMaxima::ReadVariables(wxString &data)
 
     // Remove the symbols from the data string
     data = data.Right(data.Length()-end-m_variablesSuffix.Length());
+  }
+  // If maxima currently isn't busy we can ask for the value of a variable
+  if(m_worksheet->m_evaluationQueue.Empty())
+    QueryVariableValue();
+}
+
+void wxMaxima::QueryVariableValue()
+{
+  std::cerr<<"Query"<<m_varNamesToQuery.GetCount()<<"\n";
+  if(m_varNamesToQuery.GetCount() > 0)
+  {
+    SendMaxima(wxT(":lisp-quiet (wx-query-variable ") +
+               m_varNamesToQuery.Last()+wxT(")\n"));
+    m_varNamesToQuery.RemoveAt(m_varNamesToQuery.GetCount()-1);
+    std::cerr<<"Query2"<<m_varNamesToQuery.GetCount()<<"\n";
   }
 }
 
@@ -1765,7 +1784,6 @@ void wxMaxima::ReadPrompt(wxString &data)
                   (o[o.Length() - 2] == (wxT(')'))) &&
                   (o[0] == (wxT('(')))
           ) ||
-          o.IsEmpty() || 
           m_inLispMode ||
           (o.StartsWith(wxT("MAXIMA>"))) ||
           (o.StartsWith(wxT("\nMAXIMA>")))
@@ -1806,6 +1824,8 @@ void wxMaxima::ReadPrompt(wxString &data)
       m_worksheet->m_cellPointers.SetWorkingGroup(NULL);
       m_worksheet->m_evaluationQueue.RemoveFirst();
       m_worksheet->RequestRedraw();
+      // Now that maxima is idle we can ask for the contents of its variables
+      QueryVariableValue();
     }
     else
     { // we don't have an empty queue
@@ -2675,7 +2695,7 @@ void wxMaxima::SetupVariables()
              wxString(wxmaximaversion_lisp) +
              wxT("\") '$version) (setq $wxwidgetsversion \"")) + wxString(wxVERSION_STRING) +
              wxT("\")   (if (boundp $maxima_frontend_version) (setq $maxima_frontend_version \"" +
-                 wxmaximaversion_lisp + "\")) (ignore-errors (setf (symbol-value '*lisp-quiet-suppressed-prompt*) \"" + m_promptPrefix + m_promptSuffix + "\")))\n")
+                 wxmaximaversion_lisp + "\")) (ignore-errors (setf (symbol-value '*lisp-quiet-suppressed-prompt*) \"" + m_promptPrefix + "(%i1)" + m_promptSuffix + "\")))\n")
     );
 
   ConfigChanged();
@@ -8020,7 +8040,7 @@ void wxMaxima::TriggerEvaluation()
     // The cell from the last evaluation might still be shown in it's "evaluating" state
     // so let's refresh the console to update the display of this.
     m_worksheet->RequestRedraw();
-
+        
     // If the window isn't active we can inform the user that maxima in the meantime
     // has finished working.
     if((m_worksheet->m_configuration->NotifyIfIdle()) && (m_worksheet->GetTree() != NULL))
@@ -8089,6 +8109,8 @@ void wxMaxima::TriggerEvaluation()
         m_xmlInspector->Clear();
 
       SendMaxima(m_configCommands + text, true);
+      // Now that we have sent a command we need to query all variable values anew
+      m_varNamesToQuery = m_variablesPane->GetEscapedVarnames();
       m_configCommands = wxEmptyString;
 
       EvaluationQueueLength(m_worksheet->m_evaluationQueue.Size(),

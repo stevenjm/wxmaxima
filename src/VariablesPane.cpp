@@ -40,19 +40,83 @@ Variablespane::Variablespane(wxWindow *parent, wxWindowID id) : wxGrid(parent, i
           wxGridEventHandler(Variablespane::OnTextChange),
           NULL, this);
   HideRowLabels();
+  EnableDragCell();
 }
 
 void Variablespane::OnTextChange(wxGridEvent &event)
 {
+  SetCellValue(event.GetRow(),1,wxT(""));
   if((GetNumberRows() == 0) || (GetCellValue(GetNumberRows()-1,0) != wxEmptyString))
     AppendRows();
   else
     for(int i = 0; i < GetNumberRows() - 1; i++)
       if(GetCellValue(i,0) == wxEmptyString)
         DeleteRows(i);
+}
 
-  //while((GetNumberRows() > 1) && (GetCellValue(GetNumberRows()-2,0) == wxEmptyString))
-  //    DeleteRows(GetNumberRows()-1);
+void Variablespane::VariableValue(wxString var, wxString val)
+{
+  for(int i = 0; i < GetNumberRows(); i++)
+    if(GetCellValue(i,0) == var)
+      SetCellValue(i,1,val);
+}
+
+wxArrayString Variablespane::GetEscapedVarnames()
+{
+  wxArrayString retVal;
+  for(int i = 0; i < GetNumberRows(); i++)
+  {
+    wxString var = GetCellValue(i,0);
+    if(IsValidVariable(var))
+      retVal.Add(EscapeVarname(var));
+  }
+  return retVal;
+}
+
+wxString Variablespane::UnescapeVarname(wxString var)
+{
+  if(!var.StartsWith(wxT("?")))
+    var = "?" + var;
+  else
+    var = var.Right(var.Length()-1);
+  return var;
+}
+
+wxString Variablespane::EscapeVarname(wxString var)
+{
+  var.Replace("\\","\\\\");
+  var.Replace("+","\\+");
+  var.Replace("-","\\-");
+  var.Replace("*","\\*");
+  var.Replace("/","\\/");
+  var.Replace("^","\\^");
+  var.Replace(",","\\,");
+  if(!var.StartsWith(wxT("?")))
+    var = "$" + var;
+  return var;
+}
+
+bool Variablespane::IsValidVariable(wxString var)
+{
+  if(var==wxEmptyString)
+    return false;
+  if(var.Contains(":"))
+    return false;
+  if(var.Contains(";"))
+    return false;
+  if(var.Contains("$"))
+    return false;
+  if(var.Contains("("))
+    return false;
+  if(var.Contains(")"))
+    return false;
+  return true;
+}
+
+void Variablespane::ResetValues()
+{
+  for(int i = 0; i < GetNumberRows(); i++)
+    SetCellValue(i,1,wxT(""));
 }
 
 Variablespane::~Variablespane()
