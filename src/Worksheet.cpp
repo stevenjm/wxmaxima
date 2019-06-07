@@ -5372,7 +5372,7 @@ bool Worksheet::ExportToHTML(wxString file)
     output << wxT("</noscript>");
 
     // Tell mathJax about the \abs{} operator we define for LaTeX.
-    output << wxT("<p hidden="true">\\(");
+    output << wxT("<p hidden=\"true\">\\(");
     output << wxT("      \\DeclareMathOperator{\\abs}{abs}\n");
     output << wxT("      \\newcommand{\\ensuremath}[1]{\\mbox{$#1$}}\n");
     output << wxT("\\)</p>");
