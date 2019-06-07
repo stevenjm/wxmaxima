@@ -4890,8 +4890,8 @@ bool Worksheet::ExportToHTML(wxString file)
 // Write styles
 //////////////////////////////////////////////
 
-  if ((htmlEquationFormat != ConfigDialogue::bitmap) &&
-      (htmlEquationFormat != ConfigDialogue::svg))
+  if ((htmlEquationFormat = ConfigDialogue::mathML_mathJaX) ||
+      (htmlEquationFormat != ConfigDialogue::mathJaX_TeX))
   {
     output << wxT("<script type=\"text/x-mathjax-config\">\n");
     output << wxT("  MathJax.Hub.Config({\n");
@@ -4900,7 +4900,8 @@ bool Worksheet::ExportToHTML(wxString file)
     output << wxT("    TeX: {TagSide: \"left\"}\n");
     output << wxT("  })\n");
     output << wxT("</script>\n");
-    output << wxT("<script src=\"")+m_configuration->MathJaXURL()+wxT("\">\n");
+    output << wxT("<script src=\"") + m_configuration->MathJaXURL() + wxT("\" async=\"true\">\n");
+    output << wxT("<!-- A comment that hinders wxWidgets from optimizing this tag too much -->\n");
     output << wxT("</script>\n");
   }
 
@@ -5449,7 +5450,7 @@ bool Worksheet::ExportToHTML(wxString file)
                     imgDir + wxT("/") + filename + wxString::Format(wxT("_%d.gif"), count));
             output << wxT("  <img src=\"") + filename_encoded + wxT("_htmlimg/") +
                       filename_encoded +
-                      wxString::Format(_("_%d.gif\"  alt=\"Animated Diagram\" style=\"max-width:90%%;\" >\n"), count);
+                      wxString::Format(_("_%d.gif\"  alt=\"Animated Diagram\" loading=\"lazy\" style=\"max-width:90%%;\" >\n"), count);
           }
           else if (chunk->GetType() != MC_TYPE_IMAGE)
           {
@@ -5486,7 +5487,7 @@ bool Worksheet::ExportToHTML(wxString file)
               wxSize size = svgout.SetData(chunk);
               wxString line = wxT("  <img src=\"") +
                 filename_encoded + wxT("_htmlimg/") + filename_encoded +
-                wxString::Format(wxT("_%d.svg\" width=\"%i\" style=\"max-width:90%%;\" alt=\""),
+                wxString::Format(wxT("_%d.svg\" width=\"%i\" style=\"max-width:90%%;\" alt=\" loading=\"lazy\"" ),
                                  count, size.x) +
                 alttext +
                 wxT("\" ><br/>\n");
@@ -5513,7 +5514,7 @@ bool Worksheet::ExportToHTML(wxString file)
 
               wxString line = wxT("  <img src=\"") +
                 filename_encoded + wxT("_htmlimg/") + filename_encoded +
-                wxString::Format(wxT("_%d%s\" width=\"%i\" style=\"max-width:90%%;\" alt=\""),
+                wxString::Format(wxT("_%d%s\" width=\"%i\" style=\"max-width:90%%;\" alt=\" loading=\"lazy\""),
                                  count, ext, size.x / bitmapScale - 2 * borderwidth) +
                 alttext +
                 wxT("\" ><br/>\n");
@@ -5547,7 +5548,7 @@ bool Worksheet::ExportToHTML(wxString file)
 
             wxString line = wxT("  <img src=\"") +
               filename_encoded + wxT("_htmlimg/") + filename_encoded +
-              wxString::Format(wxT("_%d%s\" width=\"%i\" style=\"max-width:90%%;\" alt=\""),
+              wxString::Format(wxT("_%d%s\" width=\"%i\" style=\"max-width:90%%;\" alt=\" loading=\"lazy\""),
                                count, ext, size.x - 2 * borderwidth) +
               alttext +
               wxT("\" ><BR/>\n");
@@ -5639,7 +5640,7 @@ bool Worksheet::ExportToHTML(wxString file)
                                                                wxString::Format(wxT("_%d.gif"), count));
             output << wxT("  <img src=\"") + filename_encoded + wxT("_htmlimg/") +
                       filename_encoded +
-                      wxString::Format(_("_%d.gif\" alt=\"Animated Diagram\" style=\"max-width:90%%;\" >"), count)
+                      wxString::Format(_("_%d.gif\" alt=\"Animated Diagram\" style=\"max-width:90%%;\" loading=\"lazy\">"), count)
                    << wxT("\n");
           }
           else
@@ -5650,7 +5651,7 @@ bool Worksheet::ExportToHTML(wxString file)
                     imgCell->GetExtension());
             output << wxT("  <img src=\"") + filename_encoded + wxT("_htmlimg/") +
                       filename_encoded +
-                      wxString::Format(wxT("_%d.%s\" alt=\"Diagram\" style=\"max-width:90%%;\" >"), count,
+                      wxString::Format(wxT("_%d.%s\" alt=\"Diagram\" style=\"max-width:90%%;\" loading=\"lazy\" >"), count,
                                        imgCell->GetExtension());
           }
           output << wxT("</div>\n");
