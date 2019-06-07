@@ -4834,6 +4834,7 @@ bool Worksheet::ExportToHTML(wxString file)
   // Show a busy cursor as long as we export.
   wxBusyCursor crs;
 
+  m_configuration->ClipToDrawRegion(false);
   // The path to the image directory as seen from the html directory
   wxString imgDir_rel;
   // The absolute path to the image directory
@@ -4859,16 +4860,29 @@ bool Worksheet::ExportToHTML(wxString file)
   if (!wxDirExists(imgDir))
   {
     if (!wxMkdir(imgDir))
+    {
+      m_configuration->ClipToDrawRegion(true);
       return false;
+    }
   }
 
-  wxString output;
-  
+  wxFileOutputStream outfile(file);
+  if (!outfile.IsOk())
+  {
+    m_configuration->ClipToDrawRegion(true);
+    return false;
+  }
+
+  wxTextOutputStream output(outfile);
+
   wxString cssfileName_rel = imgDir_rel + wxT("/") + filename + wxT(".css");
   wxString cssfileName = path + wxT("/") + cssfileName_rel;
   wxFileOutputStream cssfile(cssfileName);
   if (!cssfile.IsOk())
+  {
+    m_configuration->ClipToDrawRegion(true);
     return false;
+  }
 
   wxURI filename_uri(filename);
   wxString filename_encoded = filename_uri.BuildURI(); /* handle HTML entities like " " => "%20" */
@@ -4876,15 +4890,12 @@ bool Worksheet::ExportToHTML(wxString file)
 
   wxTextOutputStream css(cssfile);
 
-
-  m_configuration->ClipToDrawRegion(false);
-  
   output << wxT("<!DOCTYPE html>\n");
-  output << wxT("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
+  output << wxT("<html>\n");
   output << wxT(" <head>\n");
   output << wxT("  <title>") + filename + wxT("</title>\n");
-  output << wxT("  <meta name=\"generator\" content=\"wxMaxima\"/>\n");
-  output << wxT("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\n");
+  output << wxT("  <meta name=\"generator\" CONTENT=\"wxMaxima\">\n");
+  output << wxT("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
 
 //////////////////////////////////////////////
 // Write styles
@@ -4893,15 +4904,15 @@ bool Worksheet::ExportToHTML(wxString file)
   if ((htmlEquationFormat != ConfigDialogue::bitmap) &&
       (htmlEquationFormat != ConfigDialogue::svg))
   {
-    output << wxT("<script type=\"text/x-mathjax-config\">\n");
-    output << wxT("  MathJax.Hub.Config({\n");
-    output << wxT("    displayAlign: \"left\",\n");
-    output << wxT("    context: \"MathJax\",\n");
-    output << wxT("    TeX: {TagSide: \"left\"}\n");
-    output << wxT("  })\n");
-    output << wxT("</script>\n");
-    output << wxT("<script src=\"")+m_configuration->MathJaXURL()+wxT("\">\n");
-    output << wxT("</script>\n");
+    output << wxT("<script type=\"text/x-mathjax-config\">") << endl;
+    output << wxT("  MathJax.Hub.Config({") << endl;
+    output << wxT("    displayAlign: \"left\",") << endl;
+    output << wxT("    context: \"MathJax\",") << endl;
+    output << wxT("    TeX: {TagSide: \"left\"}") << endl;
+    output << wxT("  })") << endl;
+    output << wxT("</script>") << endl;
+    output << wxT("<script src=\"")+m_configuration->MathJaXURL()+wxT("\">") << endl;
+    output << wxT("</script>") << endl;
   }
 
   wxString font, fontTitle, fontSection, fontSubsection, fontSubsubsection, fontHeading5, fontHeading6, fontText;
@@ -5361,7 +5372,7 @@ bool Worksheet::ExportToHTML(wxString file)
     output << wxT("</noscript>");
 
     // Tell mathJax about the \abs{} operator we define for LaTeX.
-    output << wxT("<p>\\(");
+    output << wxT("<p hidden="true">\\(");
     output << wxT("      \\DeclareMathOperator{\\abs}{abs}\n");
     output << wxT("      \\newcommand{\\ensuremath}[1]{\\mbox{$#1$}}\n");
     output << wxT("\\)</p>");
@@ -5491,7 +5502,7 @@ bool Worksheet::ExportToHTML(wxString file)
                 alttext +
                 wxT("\" ><br/>\n");
 
-              output << line + "\n";
+              output << line << endl;
               break;
             }
 
@@ -5518,7 +5529,7 @@ bool Worksheet::ExportToHTML(wxString file)
                 alttext +
                 wxT("\" ><br/>\n");
 
-              output << line+ "\n";
+              output << line << endl;
               wxDELETE(chunk);
               break;
             }
@@ -5552,7 +5563,7 @@ bool Worksheet::ExportToHTML(wxString file)
               alttext +
               wxT("\" ><BR/>\n");
 
-            output << line + "\n";
+            output << line << endl;
             wxDELETE(chunk);
 
           }
@@ -5669,7 +5680,7 @@ bool Worksheet::ExportToHTML(wxString file)
 //////////////////////////////////////////////
 
   output << wxT("\n");
-  output << wxT(" <hr/>\n");
+  output << wxT(" <hr>\n");
   output << wxT(" <p><small> Created with "
                         "<a href=\"https://wxMaxima-developers.github.io/wxmaxima/\">"
                         "wxMaxima</a>.</small></p>\n");
@@ -5683,8 +5694,8 @@ bool Worksheet::ExportToHTML(wxString file)
     wxString wxmxfileName_rel = imgDir_rel + wxT("/") + filename + wxT(".wxmx");
     wxString wxmxfileName = path + wxT("/") + wxmxfileName_rel;
     ExportToWXMX(wxmxfileName, false);
-    output << wxT("<p><small> The source of this Maxima session can be downloaded "
-                  "<a href=\"") + wxmxfileName_rel + wxT("\">here</a>.</small></p>\n");
+    output << wxT(" <small> The source of this Maxima session can be downloaded "
+                  "<a href=\"") + wxmxfileName_rel + wxT("\">here</a>.</small>\n");
   }
 
   //
@@ -5693,57 +5704,12 @@ bool Worksheet::ExportToHTML(wxString file)
   output << wxT(" </body>\n");
   output << wxT("</html>\n");
 
-  m_configuration->ClipToDrawRegion(true);
-
-  wxXmlDocument doc;
-  {
-    wxMemoryOutputStream ostream;
-    wxTextOutputStream txtstrm(ostream);
-    txtstrm.WriteString(output);
-    wxMemoryInputStream istream(ostream);
-    doc.Load(istream);
-  }
-  
-  // If we failed to load the document firefox will still try to guess what
-  // we meant. But we want to be informed about errors so we can fix them.
-  // And we can put the erroneous file into the clipboard.
-  if (!doc.IsOk())
-  {
-    std::cerr<<output;
-    if (wxTheClipboard->Open())
-    {
-      wxDataObjectComposite *data = new wxDataObjectComposite;
-      data->Add(new wxTextDataObject(output));
-      wxTheClipboard->SetData(data);
-      wxTheClipboard->Close();
-      return true;
-    }
-    return false;
-  }
-  
-  {
-    wxMemoryOutputStream ostream;
-    doc.Save(ostream);
-    output = wxString::FromUTF8((char *) ostream.GetOutputStreamBuffer()->GetBufferStart(),
-                                ostream.GetOutputStreamBuffer()->GetBufferSize());
-    // Now the string has a header we want to drop again.
-    output = output.SubString(output.Find("\n") + 1, output.Length());
-
-  }
-
-  wxFileOutputStream outfile(file);
-  if (!outfile.IsOk())
-  {
-    return false;
-  }
-  wxTextOutputStream outstream(outfile);
-  outstream << output;
-
   bool outfileOK = !outfile.GetFile()->Error();
   bool cssOK = !cssfile.GetFile()->Error();
   outfile.Close();
   cssfile.Close();
 
+  m_configuration->ClipToDrawRegion(true);
   RecalculateForce();
   return outfileOK && cssOK;
 }
