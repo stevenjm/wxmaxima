@@ -4894,8 +4894,8 @@ bool Worksheet::ExportToHTML(wxString file)
   output << wxT("<html>\n");
   output << wxT(" <head>\n");
   output << wxT("  <title>") + filename + wxT("</title>\n");
-  output << wxT("  <meta name=\"generator\" CONTENT=\"wxMaxima\">\n");
-  output << wxT("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
+  output << wxT("  <meta name=\"generator\" content=\"wxMaxima\"/>\n");
+  output << wxT("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\n");
 
 //////////////////////////////////////////////
 // Write styles
