@@ -35,10 +35,9 @@
 #include "MarkDown.h"
 #include "wxMaximaFrame.h"
 #include <wx/tokenzr.h>
+#include "MaximaTokenizer.h"
 
 #define ESC_CHAR wxT('\xA6')
-
-const wxString operators = wxT("+-*/^:=#'!;$");
 
 EditorCell::EditorCell(Cell *parent, Configuration **config,
                        CellPointers *cellPointers, wxString text) : Cell(parent, config)
@@ -3382,227 +3381,6 @@ void EditorCell::ClearUndo()
   m_historyPosition = -1;
 }
 
-bool EditorCell::IsAlpha(wxChar ch)
-{
-  static const wxString alphas = wxT("\\_%");
-
-  if (wxIsalpha(ch))
-    return true;
-
-  return alphas.Find(ch) != wxNOT_FOUND;
-
-}
-
-bool EditorCell::IsNum(wxChar ch)
-{
-  return ch >= '0' && ch <= '9';
-}
-
-bool EditorCell::IsAlphaNum(wxChar ch)
-{
-  return IsAlpha(ch) || IsNum(ch);
-}
-
-wxArrayString EditorCell::StringToTokens(wxString text)
-{
-  wxArrayString retval;
-  wxString token;
-
-  wxString::const_iterator it = text.begin();
-
-  while (it < text.end())
-  {
-    // Determine the current char and the one that will follow it
-    wxChar Ch = *it;
-    wxString::const_iterator it2(it);
-    if(it2 < text.end())
-      ++it2;
-    wxChar nextChar;
-
-    if(it2 < text.end())
-      nextChar = *it2;
-    else
-      nextChar = wxT(' ');
-
-    // Check for newline characters (hard+soft line break)
-    if ((Ch == wxT('\n')) || (Ch == wxT('\r')))
-    {
-      if (token != wxEmptyString)
-      {
-        retval.Add(token);
-        token = wxEmptyString;
-      }
-      retval.Add(wxT("\n"));
-      ++it;
-    }
-    // A minus and a plus are special tokens as they can be both
-    // operators or part of a number.
-    else if (
-            (Ch == wxT('+')) ||
-            (Ch == wxT('-')) ||
-            (Ch == wxT('\x2212')) // An unicode minus sign
-            )
-    {
-      if (token != wxEmptyString)
-        retval.Add(token);
-      token = wxString(Ch);
-      retval.Add(token);
-      ++it;
-      token = wxEmptyString;
-    }
-    // Check for "comment start" or "comment end" markers
-    else if (((Ch == '/') && ((nextChar == wxT('*')) || (nextChar == wxT('\xB7')))) ||
-             (((Ch == wxT('*')) || (Ch == wxT('\xB7'))) && ((nextChar == wxT('/')))))
-    {
-      if (token != wxEmptyString)
-      {
-        retval.Add(token);
-        token = wxEmptyString;
-      }
-      retval.Add(wxString(Ch) + nextChar);
-      ++it;
-      if(it < text.end())
-        ++it;
-    }
-
-    // Find operators that start at the current position
-    else if (operators.Find(Ch) != wxNOT_FOUND)
-    {
-      if (token != wxEmptyString)
-      {
-        retval.Add(token);
-        token = wxEmptyString;
-      }
-      retval.Add(wxString(Ch));
-      ++it;
-    }
-    // Find a keyword that starts at the current position
-    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?'))
-    {
-      if (token != wxEmptyString)
-      {
-        retval.Add(token);
-        token = wxEmptyString;
-      }
-
-      if(Ch == '?')
-      {
-        token += Ch;
-        it++;
-        Ch = *it;
-      }
-      
-      while ((it < text.end()) && (IsAlphaNum(Ch = *it)))
-      {
-        token += Ch;
-
-        if (Ch == wxT('\\'))
-        {
-          ++it;
-          if (it < text.end())
-          {
-            Ch = *it;
-            if (Ch != wxT('\n'))
-              token += Ch;
-            else
-            {
-              retval.Add(token);
-              token = wxEmptyString;
-
-              break;
-            }
-          }
-        }
-        if(it < text.end())
-          ++it;
-      }
-      retval.Add(token);
-      token = wxEmptyString;
-    }
-    // Find a string that starts at the current position
-    else if (Ch == wxT('\"'))
-    {
-      if (token != wxEmptyString)
-        retval.Add(token);
-
-      // Add the opening quote
-      token = Ch;
-      ++it;
-
-      // Add the string contents
-      while (it < text.end())
-      {
-        Ch = *it;
-        token += Ch;
-        ++it;
-        if(Ch == wxT('\\'))
-        {
-          if(it < text.end())
-          {
-            token += *it;
-            ++it;
-          }
-        }
-        else if(Ch == wxT('\"'))
-          break;
-      }
-      retval.Add(token);
-      token = wxEmptyString;
-    }
-    // Find a number
-    else if (IsNum(Ch))
-    {
-      if (token != wxEmptyString)
-      {
-        retval.Add(token);
-        token = wxEmptyString;
-      }
-
-      while ((it < text.end()) &&
-             (IsNum(Ch) ||
-              ((Ch >= wxT('a')) && (Ch <= wxT('z'))) ||
-              ((Ch >= wxT('A')) && (Ch <= wxT('Z')))
-             )
-              )
-      {
-        token += Ch;
-        if (++it < text.end()) {
-          Ch = *it;
-        }
-      }
-
-      retval.Add(token);
-      token = wxEmptyString;
-    }
-    // Merge consecutive spaces into one single token
-    else if (Ch == wxT(' '))
-    {
-      while ((it < text.end()) &&
-             (Ch == wxT(' '))
-              )
-      {
-        token += Ch;
-        if (++it < text.end()) {
-          Ch = *it;
-        }
-      }
-
-      retval.Add(token);
-      token = wxEmptyString;
-    }
-    else
-    {
-      token = token + Ch;
-      ++it;
-    }
-  }
-
-  // Add the last token we detected to the token list
-  retval.Add(token);
-
-  return retval;
-}
-
 void EditorCell::HandleSoftLineBreaks_Code(StyledText *&lastSpace, int &lineWidth, const wxString &token,
                                            unsigned int charInCell, wxString &text, size_t &lastSpacePos,
                                            int &indentationPixels)
@@ -3683,7 +3461,7 @@ void EditorCell::StyleTextCode()
   }
 
   // Split the line into commands, numbers etc.
-  wxArrayString tokens = StringToTokens(textToStyle);
+  wxArrayString tokens = MaximaTokenizer(textToStyle).GetTokens();
 
   // Now handle the text pieces one by one
   wxString lastTokenWithText;
@@ -3835,7 +3613,7 @@ void EditorCell::StyleTextCode()
       }
 
       // End of a command
-      if (operators.Find(token) != wxNOT_FOUND)
+      if (MaximaTokenizer::Operators().Find(token) != wxNOT_FOUND)
       {
         if ((token == wxT('$')) || (token == wxT(';')))
           m_styledText.push_back(StyledText(TS_CODE_ENDOFLINE, token));
@@ -3857,7 +3635,7 @@ void EditorCell::StyleTextCode()
       }
 
       // Text
-      if ((IsAlpha(token[0])) || (token[0] == '\\') ||
+      if ((MaximaTokenizer::IsAlpha(token[0])) || (token[0] == '\\') ||
           // '?' might be the 1st letter of a variable name or an help operator
           // or an non-infix operator of some kind
           (
