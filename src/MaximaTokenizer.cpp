@@ -182,32 +182,29 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
       wxChar lastChar = *it;
       while ((it < commands.end()) &&
              (
-               (IsNum(Ch) ||
-                ((Ch >= wxT('a')) && (Ch <= wxT('z'))) ||
-                ((Ch >= wxT('A')) && (Ch <= wxT('Z')))
+               (IsNum(*it) ||
+                ((*it >= 'a') && (*it <= 'z')) ||
+                ((*it >= 'A') && (*it <= 'Z'))
                  )
                || (
                  (
-                   (lastChar == 'e') || (lastChar == 'e') ||
-                   (lastChar == 'f') || (lastChar == 'f') ||
-                   (lastChar == 'g') || (lastChar == 'g') ||
-                   (lastChar == 'h') || (lastChar == 'h') ||
+                   (lastChar == 'e') || (lastChar == 'E') ||
+                   (lastChar == 'f') || (lastChar == 'F') ||
+                   (lastChar == 'g') || (lastChar == 'G') ||
+                   (lastChar == 'h') || (lastChar == 'H') ||
                    (lastChar == 'l') || (lastChar == 'L')
                    ) && (
-                     (Ch == '+') ||
-                     (Ch == '-') ||
-                     (Ch == wxT('\x2212'))
+                     (*it == '+') ||
+                     (*it == '-') ||
+                     (*it == wxT('\x2212'))
                      )
                  )))
       {
-        token += Ch;
+        token += wxString(*it);
         lastChar = *it;
-        if (++it < commands.end())
-        {
-          Ch = *it;
-        }
+        ++it;
       }
-
+      
       m_tokens.push_back(new Token(token, TS_CODE_NUMBER));
       token = wxEmptyString;
     }
@@ -229,7 +226,7 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
       token = wxEmptyString;
     }
     // Handle keywords
-    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?'))
+    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?') || (Ch >= 128))
     {
       wxString token;
       if(Ch == '?')
@@ -298,14 +295,18 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
         {
           // Let's look what the next char looks like
           wxString::const_iterator it2(it);
-          ++it2;
           while ((it2 < commands.end()) &&
                  ((*it2 == ' ') || (*it2 == '\t') || (*it2 == '\n') || (*it2 == '\r')))
-          ++it2;
-          if((it2 < commands.end()) && (*it2 !='('))
+            ++it2;
+          if(it2 >= commands.end())
             m_tokens.push_back(new Token(token, TS_CODE_VARIABLE));
           else
-            m_tokens.push_back(new Token(token, TS_CODE_FUNCTION));
+          {
+            if(*it2 == '(')
+              m_tokens.push_back(new Token(token, TS_CODE_FUNCTION));
+            else
+              m_tokens.push_back(new Token(token, TS_CODE_VARIABLE));
+          }
         }
       }
       token = wxEmptyString;
@@ -322,7 +323,7 @@ bool MaximaTokenizer::IsAlpha(wxChar ch)
   if (wxIsalpha(ch))
     return true;
 
-  return additional_alphas.Find(ch) != wxNOT_FOUND;
+  return (additional_alphas.Find(ch) != wxNOT_FOUND) || (ch >= 128);
 }
 
 bool MaximaTokenizer::IsNum(wxChar ch)
