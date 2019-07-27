@@ -144,6 +144,7 @@ enum TextStyle
   TS_CODE_NUMBER,
   TS_CODE_STRING,
   TS_CODE_OPERATOR,
+  TS_CODE_LISP,
   TS_CODE_ENDOFLINE,
   NUMBEROFSTYLES //!< This is no style, but its number tells us how many styles we defined
 };

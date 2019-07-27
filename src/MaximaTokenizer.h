@@ -26,6 +26,8 @@
 #include <wx/wx.h>
 #include <wx/string.h>
 #include <wx/arrstr.h>
+#include "TextStyle.h"
+#include <list>
 
 /*!\file
 
@@ -42,19 +44,34 @@ class MaximaTokenizer
 public:
   MaximaTokenizer(wxString commands);
 
+  class Token
+  {
+  public:
+    Token(){m_style = TS_DEFAULT;}
+    Token(wxString text, TextStyle style)
+      {
+        m_text = text; m_style = style;
+      }
+    Token& operator=(const Token& t){m_text = t.m_text;m_style = t.m_style; return *this;}
+    Token(wxString text){m_text = text; m_style = TS_DEFAULT;}
+    TextStyle GetStyle(){return m_style;}
+    wxString GetText() {return m_text;}
+    operator wxString(){return GetText();}
+  private:
+    wxString m_text;
+    TextStyle m_style;
+  };
+  typedef std::list<Token *> TokenList;
   static bool IsAlpha(wxChar ch);
   static bool IsNum(wxChar ch);
   static bool IsAlphaNum(wxChar ch);
-  static const wxString Operators(){return wxString("+-*/^:=#'!;$");}
+  static const wxString Operators(){return wxString("+-*/^:=#'!;$()[]{}");}
 
-  wxArrayString GetTokens()
-  {
-    return m_tokens;
-  }
+  TokenList GetTokens(){return m_tokens;}
 
   
 protected:
-  wxArrayString m_tokens;
+  TokenList m_tokens;
 };
 
 #endif // MAXIMATOKENIZER_H

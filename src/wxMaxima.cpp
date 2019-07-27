@@ -31,7 +31,7 @@
  */
 
 #include <wx/notifmsg.h>
-
+#include "MaximaTokenizer.h"
 #if defined __WXMSW__
 //#include <wchar.h>
 #endif
@@ -7870,253 +7870,97 @@ void wxMaxima::EvaluateEvent(wxCommandEvent &WXUNUSED(event))
 
 wxString wxMaxima::GetUnmatchedParenthesisState(wxString text,int &index)
 {
-  index = 0;
-
-  std::list<wxChar> delimiters;
-
   if (text.EndsWith(wxT("\\")))
-  {
-    index = text.Length() - 1;
     return (_("Cell ends in a backslash"));
-  }
 
-  bool lisp = m_inLispMode;
+  MaximaTokenizer::TokenList tokens = MaximaTokenizer(text).GetTokens();
 
+  bool endingNeeded = true;
+  bool lisp = false;
   wxChar lastC = wxT(';');
   wxChar lastnonWhitespace = wxT(',');
-
-  wxString::const_iterator it = text.begin();
-  while (it < text.end())
+  MaximaTokenizer::TokenList::iterator it;
+  std::list<wxChar> delimiters;
+  for (it = tokens.begin(); it != tokens.end(); ++it)
   {
-    wxChar c = *it;
-
-    switch (c)
-    {
-      // Opening parenthesis
-    case wxT('('):
+    wxChar c = (*it)->GetText()[0];
+    if((*it)->GetText() == "(")
     {
       delimiters.push_back(wxT(')'));
       lastC = c;
-      if(m_inLispMode)
-      {
-        // Extract a few chars of the string.
-        wxString command;
-        wxString::const_iterator it2(it);
-        int chars = 0;
-        while((it2 != text.end()) && (chars++ < 12))
-        {
-          command += wxString(*it2);
-          ++it2;
-        }
-        command.Trim(false);
-        if(command.StartsWith(wxT("(to-maxima)")))
-        {
-          wxLogMessage(_("Ending lisp mode!"));
-          m_inLispMode = false;
-          lisp = false;
-        }
-      }
-      break;
     }
-    case wxT('['):
+    if((*it)->GetText() == "[")
+    {
       delimiters.push_back(wxT(']'));
       lastC = c;
-      break;
-    case wxT('{'):
+    }
+    if((*it)->GetText() == "{")
+    {
       delimiters.push_back(wxT('}'));
       lastC = c;
-      break;
-
-      // Closing parenthesis
-    case wxT(')'):
-    case wxT(']'):
-    case wxT('}'):
-      if (delimiters.empty()) return (_("Mismatched parenthesis"));
-    if (c != delimiters.back()) return (_("Mismatched parenthesis"));
-    delimiters.pop_back();
-    lastC = c;
-    if (lastnonWhitespace == wxT(','))
-      return (_("Comma directly followed by a closing parenthesis"));
-    break;
-
-    // Escaped characters
-    case wxT('\\'):
-      ++it;++index;
-      lastC = c;
-      break;
-
-      // Strings
-    case wxT('\"'):
-      ++it;++index;
-      while ((it != text.end()) && (c = *it) != wxT('\"'))
-      {
-        if (c == wxT('\\'))
-        {++it;++index;}
-
-        if(it != text.end())
-        {++it;++index;}
-      }
-      if ((it == text.end()) || (*it != wxT('\"'))) return (_("Unterminated string."));
-      lastC = c;
-      break;
-
-    // a to_lisp command
-    case wxT('t'):
-    {
-      lastC = c;
-      {
-        // Extract a few chars of the string.
-        wxString command;
-        wxString::const_iterator it2(it);
-        int chars = 10;
-        while((it2 != text.end()) && (wxIsalpha(*it2) || (*it2 == wxT('_'))) && (chars-- != 0))
-        {
-          command += wxString(*it2);
-          ++it2;
-        }
-        if(command == (wxT("to_lisp")))
-        {
-          wxLogMessage(_("Switching to lisp mode until a (to-maxima) is encountered!"));
-          m_inLispMode = true;
-          lisp = true;
-        }
-        break;
-      }
     }
-
-    // An eventual :lisp command
-    case wxT(':'):
+    else
     {
-      // Extract a few chars of the string.
-      wxString command;
-      wxString::const_iterator it2(it);
-      int chars = 11;
-      while((it2 != text.end()) && (chars-- != 0))
+      if(((*it)->GetText() == ')') || ((*it)->GetText() == ']') || ((*it)->GetText() == '}'))
       {
-        command += wxString(*it2);
-        ++it2;
-      }
-
-      // Let's see if this is a :lisp-quiet or a :lisp
-      if (command.StartsWith(wxT(":lisp")) || (command.StartsWith(wxT(":lisp-quiet"))))
-      {
-        lisp = true;
-        wxLogMessage(_("Switching to lisp mode for one line!"));        
-      }
-      lastC = c;
-      break;
-    }
-    case wxT('\n'):
-    {
-      if(!m_inLispMode)
-      {
-        if(lisp)
-          lastC = wxT(';');
-        lisp = false;
-      }
-      break;
-    }
-    case wxT(';'):
-      if(lisp)
-      {
+        if (delimiters.empty()) return (_("Mismatched parenthesis"));
+        if (c != delimiters.back()) return (_("Mismatched parenthesis"));
+        delimiters.pop_back();
         lastC = c;
-        // Skip a lisp comment
-        while((it != text.end()) && (*it != '\n'))
-          it++;
-        if(it != text.end())
-          --it;
+        if (lastnonWhitespace == wxT(','))
+          return (_("Comma directly followed by a closing parenthesis"));
         break;
       }
-      /* FALLTHRU */
-    case wxT('$'):
-      if ((!lisp) && (!delimiters.empty()))
+      else
       {
-        return _("Un-closed parenthesis on encountering ; or $");
-      }
-        lastC = c;
-        break;
-
-        // Comments
-    case wxT('/'):
-          if (it != text.end())
+        if((*it)->GetText().StartsWith("\""))
+        {
+          if(!(*it)->GetText().EndsWith("\""))
+            return (_("Unterminated string."));
+        }
+        else
+        {
+          if((*it)->GetText().StartsWith("/*"))
           {
-            wxString::const_iterator it2(it);
-            ++it2;
-            if (*it2 == wxT('*'))
-            {
-              // Comment start. Let's search for the comment end.
-
-              if (it != text.end())
-              {++it;++index;}
-              while(it != text.end())
-              {
-                wxChar last;
-                last = *it;
-                ++it;++index;
-
-                // We reached the end of the string without finding a comment end.
-                if(it == text.end())
-                  return (_("Unterminated comment."));
-
-                // A comment end.
-                if((last == wxT('*')) && (*it == wxT('/')))
-                  break;
-              }
-            }
-            else lastC = c;
+            if(!(*it)->GetText().EndsWith("*/"))
+              return (_("Unterminated comment."));
           }
-          else lastC = c;
-          break;
-
-          default:
-            if ((c != wxT('\n')) && (c != wxT(' ')) && (c != wxT('\t')))
-              lastC = c;
-    }
-
-    if (
-      (c != wxT(' ')) &&
-      (c != wxT('\t')) &&
-      (c != wxT('\n')) &&
-      (c != wxT('\r'))
-      )
-      lastnonWhitespace = c;
-
-    if(it < text.end())
-    {
-      ++it;++index;
-    }
-    }
-    if (!delimiters.empty())
-    {
-      return _("Un-closed parenthesis");
-    }
-
-    if ((!lisp))
-    {
-
-      bool endingNeeded = true;
-      text.Trim(true);
-      text.Trim(false);
-
-      // Cells ending in ";" or in "$" don't require us to add an ending.
-      if (lastC == wxT(';'))
-        endingNeeded = false;
-      if (lastC == wxT('$'))
-        endingNeeded = false;
-
-      // Cells ending in "(to-maxima)" (with optional spaces around the "to-maxima")
-      // don't require us to add an ending, neither.
-      if(text.EndsWith(wxT(")")))
-      {
-        text = text.SubString(0,text.Length()-2);
-        text.Trim();
-        if (text.EndsWith(wxT("to-maxima")))
-          endingNeeded = false;
+          else
+          {
+            if((c == ';') || (c == '$'))
+            {
+              if(!delimiters.empty())
+                return _("Un-closed parenthesis on encountering ; or $");
+            }
+          }
+        }
       }
-
-      if((endingNeeded) && (!lisp))
-        return _("No dollar ($) or semicolon (;) at the end of command");
     }
+  }
+  if (!delimiters.empty())
+  {
+    return _("Un-closed parenthesis");
+  }
+  
+  // Cells ending in ";" or in "$" don't require us to add an ending.
+  if (lastC == wxT(';'))
+    endingNeeded = false;
+  if (lastC == wxT('$'))
+    endingNeeded = false;
+  
+  // Cells ending in "(to-maxima)" (with optional spaces around the "to-maxima")
+  // don't require us to add an ending, neither.
+  if(text.EndsWith(wxT(")")))
+  {
+    text = text.SubString(0,text.Length()-2);
+    text.Trim();
+    if (text.EndsWith(wxT("to-maxima")))
+      endingNeeded = false;
+  }
+  
+  if((endingNeeded) && (!lisp))
+    return _("No dollar ($) or semicolon (;) at the end of command");
+  else
     return wxEmptyString;
 }
 
