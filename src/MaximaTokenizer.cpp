@@ -146,88 +146,6 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
       }      
       m_tokens.push_back(new Token(token, TS_CODE_COMMENT));
     }
-    // Handle keywords
-    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?') || (Ch >= '\x80'))
-    {
-      wxString token;
-      if(Ch == '?')
-      {
-        token += Ch;
-        it++;
-        Ch = *it;
-      }
-      
-      while ((it < commands.end()) && (IsAlphaNum(Ch = *it)))
-      {
-        token += Ch;
-        if (Ch == wxT('\\'))
-        {
-          ++it;
-          if (it < commands.end())
-          {
-            Ch = *it;
-            if (Ch != wxT('\n'))
-              token += Ch;
-            else
-            {
-              m_tokens.push_back(new Token(token));
-              token = wxEmptyString;
-
-              break;
-            }
-          }
-        }
-        if(it < commands.end())
-          ++it;
-      }
-      if(token == ("to_lisp"))
-      {
-        ++it;
-        while((it < commands.end()) && (!token.EndsWith("(to-maxima")))
-        {
-          token += wxString(*it);
-          ++it;
-        }
-        m_tokens.push_back(new Token(token, TS_CODE_LISP));
-      }
-      else
-      {
-        if (token == wxT("for") ||
-            token == wxT("in") ||
-            token == wxT("then") ||
-            token == wxT("while") ||
-            token == wxT("do") ||
-            token == wxT("thru") ||
-            token == wxT("next") ||
-            token == wxT("step") ||
-            token == wxT("unless") ||
-            token == wxT("from") ||
-            token == wxT("if") ||
-            token == wxT("else") ||
-            token == wxT("elif") ||
-            token == wxT("and") ||
-            token == wxT("or") ||
-            token == wxT("not") ||
-            token == wxT("not") ||
-            token == wxT("true") ||
-            token == wxT("false"))
-          m_tokens.push_back(new Token(token, TS_CODE_FUNCTION));
-        else
-        {
-          // Let's look what the next char looks like
-          wxString::const_iterator it2(it);
-          ++it2;
-          while ((it2 < commands.end()) &&
-                 ((*it2 == ' ') || (*it2 == '\t') || (*it2 == '\n') || (*it2 == '\r')))
-          ++it2;
-          if((it2 < commands.end()) && (*it2 !='('))
-          m_tokens.push_back(new Token(token, TS_CODE_VARIABLE));
-          else
-            m_tokens.push_back(new Token(token, TS_CODE_FUNCTION));
-        }
-      }
-      token = wxEmptyString;
-      }    
     // Handle strings
     else if (Ch == wxT('\"'))
     {
@@ -310,6 +228,88 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
       m_tokens.push_back(new Token(token));
       token = wxEmptyString;
     }
+    // Handle keywords
+    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?') || (Ch >= '\x80'))
+    {
+      wxString token;
+      if(Ch == '?')
+      {
+        token += Ch;
+        it++;
+        Ch = *it;
+      }
+
+      while ((it < commands.end()) && (IsAlphaNum(Ch = *it)))
+      {
+        token += Ch;
+        if (Ch == wxT('\\'))
+        {
+          ++it;
+          if (it < commands.end())
+          {
+            Ch = *it;
+            if (Ch != wxT('\n'))
+              token += Ch;
+            else
+            {
+              m_tokens.push_back(new Token(token));
+              token = wxEmptyString;
+
+              break;
+            }
+          }
+        }
+        if(it < commands.end())
+          ++it;
+      }
+      if(token == ("to_lisp"))
+      {
+        ++it;
+        while((it < commands.end()) && (!token.EndsWith("(to-maxima")))
+        {
+          token += wxString(*it);
+          ++it;
+        }
+        m_tokens.push_back(new Token(token, TS_CODE_LISP));
+      }
+      else
+      {
+        if (token == wxT("for") ||
+            token == wxT("in") ||
+            token == wxT("then") ||
+            token == wxT("while") ||
+            token == wxT("do") ||
+            token == wxT("thru") ||
+            token == wxT("next") ||
+            token == wxT("step") ||
+            token == wxT("unless") ||
+            token == wxT("from") ||
+            token == wxT("if") ||
+            token == wxT("else") ||
+            token == wxT("elif") ||
+            token == wxT("and") ||
+            token == wxT("or") ||
+            token == wxT("not") ||
+            token == wxT("not") ||
+            token == wxT("true") ||
+            token == wxT("false"))
+          m_tokens.push_back(new Token(token, TS_CODE_FUNCTION));
+        else
+        {
+          // Let's look what the next char looks like
+          wxString::const_iterator it2(it);
+          ++it2;
+          while ((it2 < commands.end()) &&
+                 ((*it2 == ' ') || (*it2 == '\t') || (*it2 == '\n') || (*it2 == '\r')))
+          ++it2;
+          if((it2 < commands.end()) && (*it2 !='('))
+            m_tokens.push_back(new Token(token, TS_CODE_VARIABLE));
+          else
+            m_tokens.push_back(new Token(token, TS_CODE_FUNCTION));
+        }
+      }
+      token = wxEmptyString;
+    }    
     else
       m_tokens.push_back(new Token(wxString(Ch)));
   }
@@ -317,13 +317,12 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
 
 bool MaximaTokenizer::IsAlpha(wxChar ch)
 {
-  static const wxString alphas = wxT("\\_%");
+  static const wxString additional_alphas = wxT("\\_%");
 
   if (wxIsalpha(ch))
     return true;
 
-  return alphas.Find(ch) != wxNOT_FOUND;
-
+  return additional_alphas.Find(ch) != wxNOT_FOUND;
 }
 
 bool MaximaTokenizer::IsNum(wxChar ch)
