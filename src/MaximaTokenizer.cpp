@@ -229,7 +229,7 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
       token = wxEmptyString;
     }
     // Handle keywords
-    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?') || (Ch >= '\x80'))
+    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?'))
     {
       wxString token;
       if(Ch == '?')
@@ -332,5 +332,5 @@ bool MaximaTokenizer::IsNum(wxChar ch)
 
 bool MaximaTokenizer::IsAlphaNum(wxChar ch)
 {
-  return IsAlpha(ch) || IsNum(ch) || (ch >= '\x80');
+  return IsAlpha(ch) || IsNum(ch);
 }
