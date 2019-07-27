@@ -7878,74 +7878,76 @@ wxString wxMaxima::GetUnmatchedParenthesisState(wxString text,int &index)
   bool endingNeeded = true;
   bool lisp = false;
   wxChar lastC = wxT(';');
-  wxChar lastnonWhitespace = wxT(',');
+  wxChar lastnonWhitespace = wxT(' ');
   MaximaTokenizer::TokenList::iterator it;
   std::list<wxChar> delimiters;
   for (it = tokens.begin(); it != tokens.end(); ++it)
   {
-    wxChar c = (*it)->GetText()[0];
-    if((*it)->GetText() == "(")
-    {
+    wxString itemText = (*it)->GetText();
+
+    wxChar c = itemText[0];
+    if(itemText == "(")
       delimiters.push_back(wxT(')'));
-      lastC = c;
-    }
-    if((*it)->GetText() == "[")
-    {
+    if(itemText == "[")
       delimiters.push_back(wxT(']'));
-      lastC = c;
-    }
-    if((*it)->GetText() == "{")
-    {
+    if(itemText == "{")
       delimiters.push_back(wxT('}'));
+    if((itemText == ')') || (itemText == ']') || (itemText == '}'))
+    {
+      if (delimiters.empty()) return (_("Mismatched parenthesis"));
+      if (c != delimiters.back()) return (_("Mismatched parenthesis"));
+      delimiters.pop_back();
       lastC = c;
+      if (lastnonWhitespace == wxT(','))
+        return (_("Comma directly followed by a closing parenthesis"));
+      break;
     }
     else
     {
-      if(((*it)->GetText() == ')') || ((*it)->GetText() == ']') || ((*it)->GetText() == '}'))
+      if(itemText.StartsWith("\""))
       {
-        if (delimiters.empty()) return (_("Mismatched parenthesis"));
-        if (c != delimiters.back()) return (_("Mismatched parenthesis"));
-        delimiters.pop_back();
-        lastC = c;
-        if (lastnonWhitespace == wxT(','))
-          return (_("Comma directly followed by a closing parenthesis"));
-        break;
+        if(!itemText.EndsWith("\""))
+          return (_("Unterminated string."));
       }
       else
       {
-        if((*it)->GetText().StartsWith("\""))
+        if(itemText.StartsWith("/*"))
         {
-          if(!(*it)->GetText().EndsWith("\""))
-            return (_("Unterminated string."));
+          if(!itemText.EndsWith("*/"))
+            return (_("Unterminated comment."));
         }
         else
         {
-          if((*it)->GetText().StartsWith("/*"))
+          if((c == ';') || (c == '$'))
           {
-            if(!(*it)->GetText().EndsWith("*/"))
-              return (_("Unterminated comment."));
+            if(!delimiters.empty())
+              return _("Un-closed parenthesis on encountering ; or $");
           }
           else
           {
-            if((c == ';') || (c == '$'))
-            {
-              if(!delimiters.empty())
-                return _("Un-closed parenthesis on encountering ; or $");
-            }
+            if((*it)->GetStyle() == TS_CODE_LISP)
+              lisp = true;
           }
         }
       }
     }
+    if((itemText != wxEmptyString) &&
+       (itemText[0] != ' ') &&
+     (itemText[0] != '\t') &&
+       (itemText[0] != '\r') &&
+       (itemText[0] != '\n'))
+      lastnonWhitespace = itemText[itemText.Length()-1];
   }
+  
   if (!delimiters.empty())
   {
     return _("Un-closed parenthesis");
   }
   
   // Cells ending in ";" or in "$" don't require us to add an ending.
-  if (lastC == wxT(';'))
+  if (lastnonWhitespace == wxT(';'))
     endingNeeded = false;
-  if (lastC == wxT('$'))
+  if (lastnonWhitespace == wxT('$'))
     endingNeeded = false;
   
   // Cells ending in "(to-maxima)" (with optional spaces around the "to-maxima")
