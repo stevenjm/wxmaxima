@@ -3508,7 +3508,7 @@ void EditorCell::StyleTextCode()
     else
       // Most things can contain Newlines - that we want as separate tokens
     {
-      std::cerr<<token.GetStyle()<<":\""<<token.GetText()<<"\"y\n";
+      std::cerr<<token.GetStyle()<<":\""<<token.GetText()<<"\"\n";
       wxString txt = token.GetText();
       wxString line;      
       for (wxString::iterator it2 = txt.begin(); it2 < txt.end(); ++it2)
