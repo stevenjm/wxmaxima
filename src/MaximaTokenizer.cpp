@@ -226,7 +226,7 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
       token = wxEmptyString;
     }
     // Handle keywords
-    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?') || (Ch >= 128))
+    else if (IsAlpha(Ch) || (Ch == '\\') || (Ch == '?'))
     {
       wxString token;
       if(Ch == '?')
@@ -310,9 +310,17 @@ MaximaTokenizer::MaximaTokenizer(wxString commands)
         }
       }
       token = wxEmptyString;
-    }    
+    }   
+    else if((Ch == '$') || (Ch == ';'))
+    {
+      m_tokens.push_back(new Token(wxString(Ch), TS_CODE_ENDOFLINE));
+      ++it;
+    }
     else
+    {
       m_tokens.push_back(new Token(wxString(Ch)));
+      ++it;
+    }
   }
 }
 
@@ -323,7 +331,7 @@ bool MaximaTokenizer::IsAlpha(wxChar ch)
   if (wxIsalpha(ch))
     return true;
 
-  return (additional_alphas.Find(ch) != wxNOT_FOUND) || (ch >= 128);
+  return (additional_alphas.Find(ch) != wxNOT_FOUND);
 }
 
 bool MaximaTokenizer::IsNum(wxChar ch)

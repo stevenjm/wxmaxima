@@ -65,7 +65,7 @@ public:
   static bool IsAlpha(wxChar ch);
   static bool IsNum(wxChar ch);
   static bool IsAlphaNum(wxChar ch);
-  static const wxString Operators(){return wxString("+-*/^:=#'!;$()[]{}");}
+  static const wxString Operators(){return wxString("+-*/^:=#'!()[]{}");}
 
   TokenList GetTokens(){return m_tokens;}
 

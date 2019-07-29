@@ -7870,97 +7870,100 @@ void wxMaxima::EvaluateEvent(wxCommandEvent &WXUNUSED(event))
 
 wxString wxMaxima::GetUnmatchedParenthesisState(wxString text,int &index)
 {
+  text.Trim(true);
+  text.Trim(false);
+  if(text == wxEmptyString)
+    return (wxEmptyString);
   if (text.EndsWith(wxT("\\")))
     return (_("Cell ends in a backslash"));
 
   MaximaTokenizer::TokenList tokens = MaximaTokenizer(text).GetTokens();
 
   bool endingNeeded = true;
-  bool lisp = false;
-  wxChar lastC = wxT(';');
-  wxChar lastnonWhitespace = wxT(' ');
+  wxChar lastnonWhitespace;
+  wxChar lastnonWhitespace_Next = wxT(' ');
   MaximaTokenizer::TokenList::iterator it;
   std::list<wxChar> delimiters;
   for (it = tokens.begin(); it != tokens.end(); ++it)
   {
     wxString itemText = (*it)->GetText();
+    TextStyle itemStyle = (*it)->GetStyle();
 
-    wxChar c = itemText[0];
+    lastnonWhitespace = lastnonWhitespace_Next;
+
+    // Handle comments
+    if(itemStyle == TS_CODE_COMMENT)
+    {
+      endingNeeded = true;
+      if(!itemText.EndsWith("*/"))
+        return (_("Unterminated comment."));
+      continue;
+    }
+
+    wxChar firstC = itemText[0];
+    wxChar lastC = itemText.Last();
+
+    // Remember the last non-whitespace character that isn't part
+    // of a comment.
+    if((firstC != ' ') && (firstC != '\t') && (firstC != '\r') && (firstC != '\n'))
+      lastnonWhitespace_Next = lastC;
+
+    // Handle opening parenthesis
     if(itemText == "(")
+    {
       delimiters.push_back(wxT(')'));
+      continue;
+    }
     if(itemText == "[")
+    {
       delimiters.push_back(wxT(']'));
+      continue;
+    }
     if(itemText == "{")
+    {
       delimiters.push_back(wxT('}'));
+      continue;
+    }
+
+    // Handle closing parenthesis
     if((itemText == ')') || (itemText == ']') || (itemText == '}'))
     {
+      endingNeeded = true;
       if (delimiters.empty()) return (_("Mismatched parenthesis"));
-      if (c != delimiters.back()) return (_("Mismatched parenthesis"));
+      if (firstC != delimiters.back()) return (_("Mismatched parenthesis"));
       delimiters.pop_back();
-      lastC = c;
       if (lastnonWhitespace == wxT(','))
         return (_("Comma directly followed by a closing parenthesis"));
-      break;
+      continue;
     }
-    else
+    
+    if(itemStyle == TS_CODE_STRING)
     {
-      if(itemText.StartsWith("\""))
-      {
-        if(!itemText.EndsWith("\""))
-          return (_("Unterminated string."));
-      }
-      else
-      {
-        if(itemText.StartsWith("/*"))
-        {
-          if(!itemText.EndsWith("*/"))
-            return (_("Unterminated comment."));
-        }
-        else
-        {
-          if((c == ';') || (c == '$'))
-          {
-            if(!delimiters.empty())
-              return _("Un-closed parenthesis on encountering ; or $");
-          }
-          else
-          {
-            if((*it)->GetStyle() == TS_CODE_LISP)
-              lisp = true;
-          }
-        }
-      }
+      endingNeeded = true;
+      if(!itemText.EndsWith("\""))
+        return (_("Unterminated string."));
+      continue;
     }
-    if((itemText != wxEmptyString) &&
-       (itemText[0] != ' ') &&
-     (itemText[0] != '\t') &&
-       (itemText[0] != '\r') &&
-       (itemText[0] != '\n'))
-      lastnonWhitespace = itemText[itemText.Length()-1];
+    
+    if(itemStyle == TS_CODE_ENDOFLINE)
+    {
+      if(!delimiters.empty())
+        return _("Un-closed parenthesis on encountering ; or $");
+      endingNeeded = false;
+      continue;
+    }
+    
+    if((*it)->GetStyle() == TS_CODE_LISP)
+    {
+      endingNeeded = false;
+      continue;
+    }
   }
   
   if (!delimiters.empty())
-  {
     return _("Un-closed parenthesis");
-  }
   
-  // Cells ending in ";" or in "$" don't require us to add an ending.
-  if (lastnonWhitespace == wxT(';'))
-    endingNeeded = false;
-  if (lastnonWhitespace == wxT('$'))
-    endingNeeded = false;
-  
-  // Cells ending in "(to-maxima)" (with optional spaces around the "to-maxima")
-  // don't require us to add an ending, neither.
-  if(text.EndsWith(wxT(")")))
-  {
-    text = text.SubString(0,text.Length()-2);
-    text.Trim();
-    if (text.EndsWith(wxT("to-maxima")))
-      endingNeeded = false;
-  }
-  
-  if((endingNeeded) && (!lisp))
+  if(endingNeeded)
     return _("No dollar ($) or semicolon (;) at the end of command");
   else
     return wxEmptyString;
